@@ -1,0 +1,36 @@
+# Rust
+/backend/target/
+/backend/Cargo.lock
+
+# Node
+/frontend/node_modules/
+/frontend/build/
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+*.tar
+
+# AWS
+/deploy/.env
+/deploy/campsite-key.pem
+*.pem
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+aws_credentials.json
+*accessKeys.csv

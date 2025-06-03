@@ -1,0 +1,78 @@
+.date-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.date-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.date-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2C3E50;
+}
+
+.date-input-wrapper {
+  position: relative;
+}
+
+.date-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #7F8C8D;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.date-input {
+  width: 100%;
+  padding: 12px 12px 12px 40px;
+  border: 2px solid #E0E0E0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  background: white;
+  cursor: pointer;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #4A6741;
+}
+
+.date-input:hover {
+  border-color: #4A6741;
+}
+
+/* Fix for date picker - make sure the calendar icon is clickable */
+.date-input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 12px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  opacity: 0.7;
+  z-index: 2;
+}
+
+.date-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* For Firefox */
+.date-input::-moz-calendar-picker {
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .date-picker {
+    grid-template-columns: 1fr;
+  }
+}
