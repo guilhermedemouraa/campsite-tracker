@@ -1,6 +1,6 @@
 use actix_files::Files;
 use actix_web::{web, App, HttpResponse, HttpServer, Result};
-use campsite_tracker::facilities_search;
+use campsite_tracker::{create_connection_pool, facilities_search, test_connection};
 use std::path::Path;
 
 async fn api_hello() -> Result<HttpResponse> {
@@ -27,7 +27,19 @@ fn get_frontend_path() -> &'static str {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     println!("🚀 Starting campsite tracker server...");
+    match create_connection_pool().await {
+        Ok(pool) => {
+            println!("🗃️ Database pool created successfully");
 
+            if let Err(e) = test_connection(&pool).await {
+                println!("❌ Database connection test failed: {}", e);
+            }
+        }
+        Err(e) => {
+            println!("❌ Failed to create database pool: {}", e);
+            println!("💡 Make sure PostgreSQL is running: brew services start postgresql@16");
+        }
+    }
     let frontend_path = get_frontend_path();
     println!("📁 Frontend files location: {}", frontend_path);
     println!("🌐 Server will be available at: http://0.0.0.0:8080");
