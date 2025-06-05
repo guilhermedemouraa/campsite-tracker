@@ -12,12 +12,17 @@ name = "campsite_tracker"
 path = "src/lib.rs"
 
 [dependencies]
-actix-web = "4.4"
-actix-files = "0.6"
-tokio = "1.45"
-reqwest = { version = "0.12.19", features = ["json"] }
+# Core dependencies
+env_logger = "0.11.8"
+lazy_static = "1.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+tokio = "1.45"
+
+# Web framework and utilities
+actix-web = "4.4"
+actix-files = "0.6"
+reqwest = { version = "0.12.19", features = ["json"] }
 urlencoding = "2.1"
 
 # Database dependencies
@@ -30,3 +35,17 @@ sqlx = { version = "0.8.6", features = [
 ] }
 uuid = { version = "1.0", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
+
+# Authentication and security dependencies
+bcrypt = "0.17"
+jsonwebtoken = "9.2"
+regex = "1.10"
+validator = { version = "0.20", features = ["derive"] }
+
+# Error handling and middleware
+anyhow = "1.0"
+futures-util = "0.3"
+thiserror = "2.0"
+
+# Environment variables
+dotenvy = "0.15"
