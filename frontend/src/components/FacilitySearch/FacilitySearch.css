@@ -11,7 +11,7 @@
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #7F8C8D;
+  color: #7f8c8d;
   pointer-events: none;
   transition: transform 0.3s ease;
 }
@@ -21,8 +21,12 @@
 }
 
 @keyframes spin {
-  from { transform: translateY(-50%) rotate(0deg); }
-  to { transform: translateY(-50%) rotate(360deg); }
+  from {
+    transform: translateY(-50%) rotate(0deg);
+  }
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
 }
 
 .loading-spinner {
@@ -30,7 +34,7 @@
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #4A6741;
+  color: #4a6741;
   font-size: 1.2rem;
   animation: spin 1s linear infinite;
 }
@@ -38,7 +42,7 @@
 .search-input {
   width: 100%;
   padding: 12px 40px 12px 40px;
-  border: 2px solid #E0E0E0;
+  border: 2px solid #e0e0e0;
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.2s;
@@ -47,7 +51,7 @@
 
 .search-input:focus {
   outline: none;
-  border-color: #4A6741;
+  border-color: #4a6741;
 }
 
 .suggestions {
@@ -56,7 +60,7 @@
   left: 0;
   right: 0;
   background: white;
-  border: 2px solid #E0E0E0;
+  border: 2px solid #e0e0e0;
   border-top: none;
   border-radius: 0 0 8px 8px;
   max-height: 300px;
@@ -72,11 +76,11 @@
   padding: 12px;
   cursor: pointer;
   transition: background-color 0.2s;
-  border-bottom: 1px solid #F5F5F5;
+  border-bottom: 1px solid #f5f5f5;
 }
 
 .suggestion-item:hover {
-  background-color: #F8F9FA;
+  background-color: #f8f9fa;
 }
 
 .suggestion-item:last-child {
@@ -92,18 +96,18 @@
 
 .suggestion-name {
   font-weight: 500;
-  color: #2C3E50;
+  color: #2c3e50;
   margin-bottom: 2px;
 }
 
 .suggestion-state {
   font-size: 0.875rem;
-  color: #7F8C8D;
+  color: #7f8c8d;
 }
 
 .no-results {
   padding: 12px;
-  color: #7F8C8D;
+  color: #7f8c8d;
   text-align: center;
   font-style: italic;
 }

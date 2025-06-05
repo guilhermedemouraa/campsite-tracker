@@ -1,8 +1,8 @@
-import React from 'react';
-import Header from './components/Header/Header';
-import CreateScan from './components/CreateScan/CreateScan';
-import MountainBackground from './components/MountainBackground/MountainBackground';
-import './App.css';
+import React from "react";
+import Header from "./components/Header/Header";
+import CreateScan from "./components/CreateScan/CreateScan";
+import MountainBackground from "./components/MountainBackground/MountainBackground";
+import "./App.css";
 
 const App: React.FC = () => {
   return (

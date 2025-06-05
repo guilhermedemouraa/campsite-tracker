@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
-import { Calendar } from 'lucide-react';
-import './DatePicker.css';
+import React, { useRef } from "react";
+import { Calendar } from "lucide-react";
+import "./DatePicker.css";
 
 interface DatePickerProps {
   checkIn: string;
@@ -13,13 +13,13 @@ const DatePicker: React.FC<DatePickerProps> = ({
   checkIn,
   checkOut,
   onCheckInChange,
-  onCheckOutChange
+  onCheckOutChange,
 }) => {
   const checkInRef = useRef<HTMLInputElement>(null);
   const checkOutRef = useRef<HTMLInputElement>(null);
-  
+
   // Get today's date in YYYY-MM-DD format for min attribute
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split("T")[0];
 
   const handleCheckInClick = () => {
     checkInRef.current?.showPicker?.();

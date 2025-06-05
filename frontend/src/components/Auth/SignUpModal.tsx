@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { X, User, Mail, Phone, Lock, Eye, EyeOff } from 'lucide-react';
-import './SignUpModal.css';
+import React, { useState } from "react";
+import { X, User, Mail, Phone, Lock, Eye, EyeOff } from "lucide-react";
+import "./SignUpModal.css";
 
 interface SignUpFormData {
   name: string;
@@ -20,13 +20,17 @@ interface SignUpModalProps {
   onSuccess: () => void;
 }
 
-const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess }) => {
+const SignUpModal: React.FC<SignUpModalProps> = ({
+  isOpen,
+  onClose,
+  onSuccess,
+}) => {
   const [formData, setFormData] = useState<SignUpFormData>({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
     notifications: {
       email: true,
       sms: true,
@@ -43,35 +47,36 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
 
     // Name validation
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = "Name is required";
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = "Please enter a valid email";
     }
 
     // Phone validation (basic US format)
-    const phoneRegex = /^\+?1?[-.\s]?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})$/;
+    const phoneRegex =
+      /^\+?1?[-.\s]?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})$/;
     if (!formData.phone) {
-      newErrors.phone = 'Phone number is required';
+      newErrors.phone = "Phone number is required";
     } else if (!phoneRegex.test(formData.phone)) {
-      newErrors.phone = 'Please enter a valid US phone number';
+      newErrors.phone = "Please enter a valid US phone number";
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+      newErrors.password = "Password must be at least 8 characters";
     }
 
     // Confirm password validation
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     setErrors(newErrors);
@@ -80,17 +85,17 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
       // Format phone number to E.164 format
       const formattedPhone = formatPhoneNumber(formData.phone);
-      
+
       const signUpData = {
         name: formData.name.trim(),
         email: formData.email.toLowerCase().trim(),
@@ -99,33 +104,41 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
         notification_preferences: formData.notifications,
       };
 
-      console.log('Signing up user:', { ...signUpData, password: '[REDACTED]' });
+      console.log("Signing up user:", {
+        ...signUpData,
+        password: "[REDACTED]",
+      });
 
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(signUpData),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Sign up failed');
+        throw new Error(errorData.message || "Sign up failed");
       }
 
       const result = await response.json();
-      console.log('Sign up successful:', result);
-      
+      console.log("Sign up successful:", result);
+
       onSuccess();
       onClose();
-      
+
       // TODO: Handle successful signup (maybe auto-login or show verification message)
-      alert('Account created successfully! Please check your email for verification.');
-      
+      alert(
+        "Account created successfully! Please check your email for verification.",
+      );
     } catch (error) {
-      console.error('Sign up error:', error);
-      alert(error instanceof Error ? error.message : 'Sign up failed. Please try again.');
+      console.error("Sign up error:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Sign up failed. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -133,40 +146,43 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
 
   const formatPhoneNumber = (phone: string): string => {
     // Remove all non-digit characters
-    const digits = phone.replace(/\D/g, '');
-    
+    const digits = phone.replace(/\D/g, "");
+
     // Add +1 if it's a 10-digit US number
     if (digits.length === 10) {
       return `+1${digits}`;
-    } else if (digits.length === 11 && digits.startsWith('1')) {
+    } else if (digits.length === 11 && digits.startsWith("1")) {
       return `+${digits}`;
     }
-    
+
     return `+${digits}`;
   };
 
-  const handleInputChange = (field: keyof SignUpFormData, value: string | boolean) => {
-    if (field === 'notifications') {
+  const handleInputChange = (
+    field: keyof SignUpFormData,
+    value: string | boolean,
+  ) => {
+    if (field === "notifications") {
       // This shouldn't happen with current UI, but keeping for type safety
       return;
     }
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         [field]: undefined,
       }));
     }
   };
 
-  const handleNotificationChange = (type: 'email' | 'sms', value: boolean) => {
-    setFormData(prev => ({
+  const handleNotificationChange = (type: "email" | "sms", value: boolean) => {
+    setFormData((prev) => ({
       ...prev,
       notifications: {
         ...prev.notifications,
@@ -196,13 +212,15 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
               <input
                 type="text"
                 value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
+                onChange={(e) => handleInputChange("name", e.target.value)}
                 placeholder="Enter your full name"
-                className={`form-input ${errors.name ? 'error' : ''}`}
+                className={`form-input ${errors.name ? "error" : ""}`}
                 disabled={isLoading}
               />
             </div>
-            {errors.name && <span className="error-message">{errors.name}</span>}
+            {errors.name && (
+              <span className="error-message">{errors.name}</span>
+            )}
           </div>
 
           {/* Email Field */}
@@ -213,13 +231,15 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
               <input
                 type="email"
                 value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
+                onChange={(e) => handleInputChange("email", e.target.value)}
                 placeholder="Enter your email"
-                className={`form-input ${errors.email ? 'error' : ''}`}
+                className={`form-input ${errors.email ? "error" : ""}`}
                 disabled={isLoading}
               />
             </div>
-            {errors.email && <span className="error-message">{errors.email}</span>}
+            {errors.email && (
+              <span className="error-message">{errors.email}</span>
+            )}
           </div>
 
           {/* Phone Field */}
@@ -230,14 +250,18 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
               <input
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
+                onChange={(e) => handleInputChange("phone", e.target.value)}
                 placeholder="(555) 123-4567"
-                className={`form-input ${errors.phone ? 'error' : ''}`}
+                className={`form-input ${errors.phone ? "error" : ""}`}
                 disabled={isLoading}
               />
             </div>
-            {errors.phone && <span className="error-message">{errors.phone}</span>}
-            <div className="field-help">We'll use this to send you campsite alerts</div>
+            {errors.phone && (
+              <span className="error-message">{errors.phone}</span>
+            )}
+            <div className="field-help">
+              We'll use this to send you campsite alerts
+            </div>
           </div>
 
           {/* Password Field */}
@@ -246,11 +270,11 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
             <div className="input-wrapper">
               <Lock className="input-icon" size={20} />
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={formData.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
+                onChange={(e) => handleInputChange("password", e.target.value)}
                 placeholder="Create a password"
-                className={`form-input ${errors.password ? 'error' : ''}`}
+                className={`form-input ${errors.password ? "error" : ""}`}
                 disabled={isLoading}
               />
               <button
@@ -261,7 +285,9 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-            {errors.password && <span className="error-message">{errors.password}</span>}
+            {errors.password && (
+              <span className="error-message">{errors.password}</span>
+            )}
           </div>
 
           {/* Confirm Password Field */}
@@ -270,11 +296,13 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
             <div className="input-wrapper">
               <Lock className="input-icon" size={20} />
               <input
-                type={showConfirmPassword ? 'text' : 'password'}
+                type={showConfirmPassword ? "text" : "password"}
                 value={formData.confirmPassword}
-                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("confirmPassword", e.target.value)
+                }
                 placeholder="Confirm your password"
-                className={`form-input ${errors.confirmPassword ? 'error' : ''}`}
+                className={`form-input ${errors.confirmPassword ? "error" : ""}`}
                 disabled={isLoading}
               />
               <button
@@ -285,7 +313,9 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
                 {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-            {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+            {errors.confirmPassword && (
+              <span className="error-message">{errors.confirmPassword}</span>
+            )}
           </div>
 
           {/* Notification Preferences */}
@@ -296,7 +326,9 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
                 <input
                   type="checkbox"
                   checked={formData.notifications.email}
-                  onChange={(e) => handleNotificationChange('email', e.target.checked)}
+                  onChange={(e) =>
+                    handleNotificationChange("email", e.target.checked)
+                  }
                   disabled={isLoading}
                 />
                 <span className="checkbox-text">Email notifications</span>
@@ -305,7 +337,9 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
                 <input
                   type="checkbox"
                   checked={formData.notifications.sms}
-                  onChange={(e) => handleNotificationChange('sms', e.target.checked)}
+                  onChange={(e) =>
+                    handleNotificationChange("sms", e.target.checked)
+                  }
                   disabled={isLoading}
                 />
                 <span className="checkbox-text">SMS notifications</span>
@@ -316,16 +350,16 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
           {/* Submit Button */}
           <button
             type="submit"
-            className={`submit-button ${isLoading ? 'loading' : ''}`}
+            className={`submit-button ${isLoading ? "loading" : ""}`}
             disabled={isLoading}
           >
-            {isLoading ? 'Creating Account...' : 'Create Account'}
+            {isLoading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
         <div className="modal-footer">
           <p>
-            Already have an account?{' '}
+            Already have an account?{" "}
             <button className="link-button" onClick={onClose}>
               Sign in instead
             </button>

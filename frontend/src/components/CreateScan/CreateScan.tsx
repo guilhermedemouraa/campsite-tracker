@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
-import FacilitySearch, { Facility } from '../FacilitySearch/FacilitySearch';
-import DatePicker from '../DatePicker/DatePicker';
-import './CreateScan.css';
+import React, { useState } from "react";
+import { Plus } from "lucide-react";
+import FacilitySearch, { Facility } from "../FacilitySearch/FacilitySearch";
+import DatePicker from "../DatePicker/DatePicker";
+import "./CreateScan.css";
 
 const CreateScan: React.FC = () => {
-  const [facilitySearch, setFacilitySearch] = useState<string>('');
-  const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
-  const [checkIn, setCheckIn] = useState<string>('');
-  const [checkOut, setCheckOut] = useState<string>('');
+  const [facilitySearch, setFacilitySearch] = useState<string>("");
+  const [selectedFacility, setSelectedFacility] = useState<Facility | null>(
+    null,
+  );
+  const [checkIn, setCheckIn] = useState<string>("");
+  const [checkOut, setCheckOut] = useState<string>("");
 
   const handleFacilityChange = (value: string) => {
     setFacilitySearch(value);
@@ -20,31 +22,37 @@ const CreateScan: React.FC = () => {
 
   const handleFacilitySelect = (facility: Facility) => {
     setSelectedFacility(facility);
-    console.log('Selected facility:', facility);
+    console.log("Selected facility:", facility);
   };
 
   const handleCreateScan = () => {
     if (!facilitySearch || !checkIn || !checkOut) {
-      alert('Please fill in all fields');
+      alert("Please fill in all fields");
       return;
     }
-    
+
     if (new Date(checkOut) <= new Date(checkIn)) {
-      alert('Check-out date must be after check-in date');
+      alert("Check-out date must be after check-in date");
       return;
     }
-    
-    console.log('Creating scan:', {
+
+    console.log("Creating scan:", {
       facility: selectedFacility || { name: facilitySearch },
       checkIn,
-      checkOut
+      checkOut,
     });
-    
+
     // TODO: Implement actual scan creation logic
-    alert(`Scan would be created for ${facilitySearch} from ${checkIn} to ${checkOut}`);
+    alert(
+      `Scan would be created for ${facilitySearch} from ${checkIn} to ${checkOut}`,
+    );
   };
 
-  const isFormValid = facilitySearch && checkIn && checkOut && new Date(checkOut) > new Date(checkIn);
+  const isFormValid =
+    facilitySearch &&
+    checkIn &&
+    checkOut &&
+    new Date(checkOut) > new Date(checkIn);
 
   return (
     <div className="create-scan">
@@ -52,9 +60,11 @@ const CreateScan: React.FC = () => {
         <div className="scan-header">
           <Plus className="scan-icon" />
           <h2 className="scan-title">Create a New Scan</h2>
-          <p className="scan-subtitle">Monitor campsite availability for your trip</p>
+          <p className="scan-subtitle">
+            Monitor campsite availability for your trip
+          </p>
         </div>
-        
+
         <div className="scan-form">
           <div className="form-group">
             <label className="form-label">
@@ -69,7 +79,7 @@ const CreateScan: React.FC = () => {
               onFacilitySelect={handleFacilitySelect}
             />
           </div>
-          
+
           <div className="form-group">
             <label className="form-label">Dates</label>
             <DatePicker
@@ -79,9 +89,9 @@ const CreateScan: React.FC = () => {
               onCheckOutChange={setCheckOut}
             />
           </div>
-          
-          <button 
-            className={`create-button ${!isFormValid ? 'disabled' : ''}`}
+
+          <button
+            className={`create-button ${!isFormValid ? "disabled" : ""}`}
             onClick={handleCreateScan}
             disabled={!isFormValid}
           >

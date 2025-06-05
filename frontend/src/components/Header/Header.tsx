@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { User, MapPin } from 'lucide-react';
-import SignUpModal from '../Auth/SignUpModal';
-import './Header.css';
+import React, { useState } from "react";
+import { User, MapPin } from "lucide-react";
+import SignUpModal from "../Auth/SignUpModal";
+import "./Header.css";
 
 const Header: React.FC = () => {
   const [showSignUpModal, setShowSignUpModal] = useState(false);
 
   const handleSignIn = () => {
     // TODO: Implement sign-in functionality
-    console.log('Sign in clicked');
+    console.log("Sign in clicked");
   };
 
   const handleSignUp = () => {
@@ -16,7 +16,7 @@ const Header: React.FC = () => {
   };
 
   const handleSignUpSuccess = () => {
-    console.log('User signed up successfully!');
+    console.log("User signed up successfully!");
     // TODO: Handle successful signup (maybe auto-login or redirect)
   };
 
@@ -39,7 +39,7 @@ const Header: React.FC = () => {
           </nav>
         </div>
       </header>
-      
+
       <SignUpModal
         isOpen={showSignUpModal}
         onClose={() => setShowSignUpModal(false)}
