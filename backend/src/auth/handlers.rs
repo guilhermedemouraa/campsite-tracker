@@ -8,6 +8,9 @@ use super::middleware::AuthenticatedUser;
 use super::service::AuthService;
 use super::types::{AuthError, AuthResponse, LoginRequest, SignUpRequest, UserInfo};
 
+/// Handles user signup by validating the request, creating a new user,
+/// generating access and refresh tokens, and returning the user info.
+/// Returns a 201 Created response with the user info and tokens.
 pub async fn signup(
     pool: web::Data<PgPool>,
     request: web::Json<SignUpRequest>,
@@ -53,6 +56,8 @@ pub async fn signup(
     Ok(HttpResponse::Created().json(response))
 }
 
+/// Handles user login by validating the request, verifying credentials,
+/// generating access and refresh tokens, and returning the user info.
 pub async fn login(
     pool: web::Data<PgPool>,
     request: web::Json<LoginRequest>,
@@ -100,9 +105,10 @@ pub async fn login(
     Ok(HttpResponse::Ok().json(response))
 }
 
+/// Handles user profile retrieval by fetching user info based on the authenticated user.
 pub async fn get_profile(
     pool: web::Data<PgPool>,
-    user: AuthenticatedUser, // Use our custom extractor
+    user: AuthenticatedUser,
 ) -> Result<HttpResponse, AuthError> {
     let auth_service = AuthService::new(pool.get_ref().clone());
 
@@ -137,7 +143,7 @@ fn _validate_signup_request(request: &SignUpRequest) -> Result<(), AuthError> {
     Ok(())
 }
 
-// Health check endpoint for auth service
+/// Health check endpoint for auth service
 pub async fn auth_health() -> Result<HttpResponse> {
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "service": "auth",
@@ -146,7 +152,7 @@ pub async fn auth_health() -> Result<HttpResponse> {
     })))
 }
 
-// Development endpoint to list users (remove in production!)
+/// Development endpoint to list users (remove in production!)
 pub async fn list_users(pool: web::Data<PgPool>) -> Result<HttpResponse, AuthError> {
     let rows = sqlx::query(
         "SELECT id, name, email, phone, email_verified, phone_verified, created_at FROM users ORDER BY created_at DESC"

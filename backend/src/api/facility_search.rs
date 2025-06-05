@@ -1,10 +1,10 @@
 use actix_web::{web, HttpResponse, Result};
-use reqwest;
+use reqwest::Client;
 use serde_json::Value;
 use std::collections::HashMap;
 
 async fn search_recreation_areas(query: String) -> Result<Value, Box<dyn std::error::Error>> {
-    let client = reqwest::Client::new();
+    let client = Client::new();
     let url = format!(
         "https://ridb.recreation.gov/api/v1/recareas?query={}&activity=CAMPING&limit=50",
         urlencoding::encode(&query)
@@ -21,7 +21,7 @@ async fn search_recreation_areas(query: String) -> Result<Value, Box<dyn std::er
 }
 
 async fn get_facilities_for_recarea(recarea_id: &str) -> Result<Value, Box<dyn std::error::Error>> {
-    let client = reqwest::Client::new();
+    let client = Client::new();
     let url = format!(
         "https://ridb.recreation.gov/api/v1/recareas/{}/facilities?activity=CAMPING&limit=50",
         recarea_id
@@ -37,6 +37,7 @@ async fn get_facilities_for_recarea(recarea_id: &str) -> Result<Value, Box<dyn s
     Ok(data)
 }
 
+/// Handler for searching facilities based on a query parameter
 pub async fn facilities_search(query: web::Query<HashMap<String, String>>) -> Result<HttpResponse> {
     println!("🔍 Facilities search called with query: {:?}", query);
 

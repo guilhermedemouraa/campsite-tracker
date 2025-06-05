@@ -13,6 +13,8 @@ use uuid::Uuid;
 
 use super::jwt::JwtService;
 
+/// Middleware for handling authentication by verifying JWT tokens
+/// and extracting user information from the request.
 pub struct AuthMiddleware;
 
 impl<S, B> Transform<S, ServiceRequest> for AuthMiddleware
@@ -35,6 +37,7 @@ where
     }
 }
 
+/// Service that implements the authentication middleware logic
 pub struct AuthMiddlewareService<S> {
     service: Rc<S>,
     jwt_service: JwtService,
@@ -103,12 +106,12 @@ where
     }
 }
 
-// Helper function to extract user ID from request
+/// Helper function to extract user ID from request
 pub fn extract_user_id(req: &ServiceRequest) -> Option<Uuid> {
     req.extensions().get::<Uuid>().copied()
 }
 
-// Custom extractor for authenticated user ID
+/// Custom extractor for authenticated user ID
 pub struct AuthenticatedUser(pub Uuid);
 
 impl actix_web::FromRequest for AuthenticatedUser {

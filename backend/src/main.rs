@@ -1,10 +1,10 @@
+//! Main entry point for the Campsite Tracker backend server.
+//! This crate provides REST API endpoints and serves the frontend application.
+
 use actix_files::Files;
 use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Result};
-use campsite_tracker::{create_connection_pool, facilities_search, test_connection};
+use campsite_tracker::*;
 use std::path::Path;
-
-// Import auth handlers
-use campsite_tracker::{auth_health, get_profile, list_users, login, signup, AuthMiddleware};
 
 async fn api_hello() -> Result<HttpResponse> {
     Ok(HttpResponse::Ok().json(serde_json::json!({
