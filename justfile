@@ -242,8 +242,23 @@ logs:
     --output text)
   
   echo "📋 Recent logs:"
-  ssh -i campsite-key.pem -o StrictHostKeyChecking=no ec2-user@$INSTANCE_IP \
-    'sudo docker logs campsite-tracker --tail 50'
+  ssh -i campsite-key.pem ec2-user@$INSTANCE_IP 'sudo docker logs -f campsite-tracker'
+
+start_instance:
+  #!/usr/bin/env bash
+  cd deploy
+  source .env
+  echo "🚀 Starting EC2 instance..."
+  aws ec2 start-instances --instance-ids $INSTANCE_ID
+  echo "Instance starting..."
+
+stop_instance:
+  #!/usr/bin/env bash
+  cd deploy
+  source .env
+  echo "🛑 Stopping EC2 instance..."
+  aws ec2 stop-instances --instance-ids $INSTANCE_ID
+  echo "Instance stopping..."
 
 # === Cleanup ===
 

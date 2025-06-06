@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Warm sky background -->
+  <rect width="64" height="64" fill="#DEB887"/>
+  
+  <!-- Back mountain range - warm gray -->
+  <path d="M0,40 L8,25 L16,35 L24,20 L32,30 L40,18 L48,28 L56,22 L64,32 L64,64 L0,64 Z" 
+        fill="#8B7355"/>
+  
+  <!-- Middle mountain range - medium brown -->
+  <path d="M0,45 L10,28 L20,38 L30,25 L42,35 L52,22 L64,40 L64,64 L0,64 Z" 
+        fill="#6B4423"/>
+  
+  <!-- Front mountain range - dark earth -->
+  <path d="M0,50 L12,30 L28,45 L40,28 L56,42 L64,35 L64,64 L0,64 Z" 
+        fill="#3E2723"/>
+  
+  <!-- Snow caps -->
+  <path d="M12,30 L8,38 L16,38 Z" fill="#FFF8DC"/>
+  <path d="M40,28 L35,36 L45,36 Z" fill="#FFF8DC"/>
+  <path d="M30,25 L26,32 L34,32 Z" fill="#F5F5DC"/>
+  <path d="M52,22 L48,29 L56,29 Z" fill="#F5F5DC"/>
+</svg>
