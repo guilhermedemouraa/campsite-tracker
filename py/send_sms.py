@@ -28,7 +28,7 @@ if __name__ == "__main__":
     send_sms(
         phone_number="5307509190",  # Your phone number (no dashes/spaces)
         carrier_gateway="@txt.att.net",  # Your carrier's gateway
-        message="Hello from Python!",
+        message="Oi Lekinha. Eu sou o Guigao!",
         gmail_user="guilhermedemouraa@gmail.com",  # Your Gmail address
         gmail_app_password="schy jmik kfja gryg",  # The 16-character app password
     )

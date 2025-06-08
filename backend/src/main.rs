@@ -16,13 +16,13 @@ async fn api_hello() -> Result<HttpResponse> {
 fn get_frontend_path() -> &'static str {
     // Check multiple possible locations for frontend files
     if Path::new("./frontend-build").exists() {
-        println!("✅ Using Docker frontend path: ./frontend-build");
+        log::info!("✅ Using Docker frontend path: ./frontend-build");
         "./frontend-build"
     } else if Path::new("../frontend/build").exists() {
-        println!("✅ Using local frontend path: ../frontend/build");
+        log::info!("✅ Using local frontend path: ../frontend/build");
         "../frontend/build"
     } else {
-        println!("❌ Frontend files not found in either location");
+        log::info!("❌ Frontend files not found in either location");
         "./frontend-build" // fallback
     }
 }
@@ -35,28 +35,28 @@ async fn main() -> std::io::Result<()> {
     // Initialize logger
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    println!("🚀 Starting campsite tracker server...");
+    log::info!("🚀 Starting campsite tracker server...");
 
     // Create database connection pool
     let pool = match create_connection_pool().await {
         Ok(pool) => {
-            println!("🗃️ Database pool created successfully");
+            log::info!("🗃️ Database pool created successfully");
 
             if let Err(e) = test_connection(&pool).await {
-                println!("❌ Database connection test failed: {}", e);
+                log::error!("❌ Database connection test failed: {}", e);
             }
             pool
         }
         Err(e) => {
-            println!("❌ Failed to create database pool: {}", e);
-            println!("💡 Make sure PostgreSQL is running: brew services start postgresql@16");
+            log::error!("❌ Failed to create database pool: {}", e);
+            log::error!("💡 Make sure PostgreSQL is running: brew services start postgresql@16");
             std::process::exit(1);
         }
     };
 
     let frontend_path = get_frontend_path();
-    println!("📁 Frontend files location: {}", frontend_path);
-    println!("🌐 Server will be available at: http://0.0.0.0:8080");
+    log::info!("📁 Frontend files location: {}", frontend_path);
+    log::info!("🌐 Server will be available at: http://0.0.0.0:8080");
 
     HttpServer::new(move || {
         App::new()
@@ -78,7 +78,8 @@ async fn main() -> std::io::Result<()> {
                     .service(
                         web::scope("/user")
                             .wrap(AuthMiddleware)
-                            .route("/profile", web::get().to(get_profile)),
+                            .route("/profile", web::get().to(get_profile))
+                            .route("/profile/update", web::put().to(update_profile)),
                     ),
             )
             .route(

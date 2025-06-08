@@ -17,13 +17,15 @@ interface SignUpFormData {
 interface SignUpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (user: any, tokens: any) => void;
+  onSwitchToLogin?: () => void;
 }
 
 const SignUpModal: React.FC<SignUpModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
+  onSwitchToLogin,
 }) => {
   const [formData, setFormData] = useState<SignUpFormData>({
     name: "",
@@ -125,13 +127,20 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
       const result = await response.json();
       console.log("Sign up successful:", result);
 
-      onSuccess();
+      // Store tokens in localStorage
+      localStorage.setItem("access_token", result.access_token);
+      localStorage.setItem("refresh_token", result.refresh_token);
+
+      // Call onSuccess with user data and tokens
+      onSuccess(result.user, {
+        access_token: result.access_token,
+        refresh_token: result.refresh_token,
+      });
+
       onClose();
 
-      // TODO: Handle successful signup (maybe auto-login or show verification message)
-      alert(
-        "Account created successfully! Please check your email for verification.",
-      );
+      // Show success message
+      alert("Account created successfully! Welcome to CampTracker!");
     } catch (error) {
       console.error("Sign up error:", error);
       alert(
@@ -360,7 +369,10 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
         <div className="modal-footer">
           <p>
             Already have an account?{" "}
-            <button className="link-button" onClick={onClose}>
+            <button
+              className="link-button"
+              onClick={onSwitchToLogin || onClose}
+            >
               Sign in instead
             </button>
           </p>

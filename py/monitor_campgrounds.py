@@ -423,7 +423,7 @@ def main():
     # Example 1: Check specific date ranges
     print("🎯 OPTION 1: Check specific date ranges")
     date_ranges = [
-        ("2025-05-27", "2025-05-30"),  # 2 nights: July 15-17
+        ("2025-06-09", "2025-06-10"),  # 2 nights: July 15-17
         ("2025-07-20", "2025-07-23"),  # 3 nights: July 20-23
     ]
     monitor.monitor_date_ranges(date_ranges)

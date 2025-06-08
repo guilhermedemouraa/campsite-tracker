@@ -214,7 +214,7 @@ deploy:
   #!/usr/bin/env bash
   cd deploy
   echo "🚀 Deploying to AWS..."
-  ./build_and_deploy_remote.sh
+  ./build_and_deploy.sh
 
 # Check deployment status
 status:

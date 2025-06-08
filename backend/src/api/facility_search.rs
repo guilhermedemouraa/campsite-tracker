@@ -39,10 +39,10 @@ async fn get_facilities_for_recarea(recarea_id: &str) -> Result<Value, Box<dyn s
 
 /// Handler for searching facilities based on a query parameter
 pub async fn facilities_search(query: web::Query<HashMap<String, String>>) -> Result<HttpResponse> {
-    println!("🔍 Facilities search called with query: {:?}", query);
+    log::debug!("🔍 Facilities search called with query: {:?}", query);
 
     if let Some(q) = query.get("q") {
-        println!("📝 Searching for recreation areas: {}", q);
+        log::debug!("📝 Searching for recreation areas: {}", q);
 
         match search_recreation_areas(q.to_string()).await {
             Ok(recarea_data) => {
@@ -50,7 +50,7 @@ pub async fn facilities_search(query: web::Query<HashMap<String, String>>) -> Re
 
                 // For each recreation area found, get its facilities
                 if let Some(recareas) = recarea_data.get("RECDATA").and_then(|v| v.as_array()) {
-                    println!("🏞️ Found {} recreation areas", recareas.len());
+                    log::debug!("🏞️ Found {} recreation areas", recareas.len());
 
                     for recarea in recareas {
                         if let Some(recarea_id) = recarea.get("RecAreaID").and_then(|v| v.as_str())
@@ -64,9 +64,10 @@ pub async fn facilities_search(query: web::Query<HashMap<String, String>>) -> Re
 
                                 // Check if the recreation area name contains the search term
                                 if name_lower.contains(&query_lower) {
-                                    println!(
+                                    log::debug!(
                                         "✅ Getting facilities for: {} (ID: {}) - MATCHES query",
-                                        recarea_name, recarea_id
+                                        recarea_name,
+                                        recarea_id
                                     );
 
                                     match get_facilities_for_recarea(recarea_id).await {
@@ -75,7 +76,7 @@ pub async fn facilities_search(query: web::Query<HashMap<String, String>>) -> Re
                                                 .get("RECDATA")
                                                 .and_then(|v| v.as_array())
                                             {
-                                                println!(
+                                                log::debug!(
                                                     "  📍 Found {} facilities",
                                                     facilities.len()
                                                 );
@@ -83,16 +84,18 @@ pub async fn facilities_search(query: web::Query<HashMap<String, String>>) -> Re
                                             }
                                         }
                                         Err(e) => {
-                                            println!(
+                                            log::error!(
                                                 "  ❌ Error getting facilities for {}: {}",
-                                                recarea_name, e
+                                                recarea_name,
+                                                e
                                             );
                                         }
                                     }
                                 } else {
-                                    println!(
+                                    log::debug!(
                                         "⏭️ Skipping: {} - doesn't match query '{}'",
-                                        recarea_name, q
+                                        recarea_name,
+                                        q
                                     );
                                 }
                             }
@@ -112,7 +115,7 @@ pub async fn facilities_search(query: web::Query<HashMap<String, String>>) -> Re
                 //     })
                 //     .collect();
 
-                println!("🎯 Returning {} NPS facilities", all_facilities.len());
+                log::debug!("🎯 Returning {} NPS facilities", all_facilities.len());
 
                 // Create response in the same format as the original API
                 let response = serde_json::json!({
@@ -128,12 +131,14 @@ pub async fn facilities_search(query: web::Query<HashMap<String, String>>) -> Re
                 Ok(HttpResponse::Ok().json(response))
             }
             Err(e) => {
-                eprintln!("❌ Error searching recreation areas: {}", e);
+                log::error!("❌ Error searching recreation areas: {}", e);
                 Ok(HttpResponse::InternalServerError().json("Search failed"))
             }
         }
     } else {
-        println!("❌ Missing query parameter");
+        log::error!(
+            "❌ Error: There was an attempt to search for facilities, but missing the query parameter"
+        );
         Ok(HttpResponse::BadRequest().json("Missing query parameter"))
     }
 }

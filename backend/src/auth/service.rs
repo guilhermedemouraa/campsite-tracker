@@ -3,8 +3,9 @@ use chrono::Utc;
 use sqlx::{PgPool, Row};
 use uuid::Uuid;
 
-use super::types::{
-    validate_phone_number, AuthError, NotificationPreferences, SignUpRequest, User,
+use crate::{
+    auth::types::{validate_phone_number, AuthError, NotificationPreferences, SignUpRequest, User},
+    UpdateProfileRequest,
 };
 
 /// A service for handling user authentication operations such as creating users,
@@ -226,6 +227,65 @@ impl AuthService {
         }
 
         Ok(())
+    }
+
+    /// Updates the user's profile information
+    pub async fn update_user_profile(
+        &self,
+        user_id: &Uuid,
+        request: &UpdateProfileRequest,
+    ) -> Result<User, AuthError> {
+        // Validate phone number format
+        if !validate_phone_number(&request.phone) {
+            return Err(AuthError::InvalidPhoneNumber);
+        }
+
+        // Format phone number to E.164 format
+        let formatted_phone = self.format_phone_number(&request.phone);
+
+        // Serialize notification preferences to JSON
+        let notification_prefs =
+            serde_json::to_value(&request.notification_preferences).map_err(|e| {
+                AuthError::Validation(format!("Invalid notification preferences: {}", e))
+            })?;
+
+        // Update the user
+        let row = sqlx::query(
+            r#"
+            UPDATE users 
+            SET name = $1, email = $2, phone = $3, notification_preferences = $4, updated_at = NOW()
+            WHERE id = $5 AND is_active = true
+            RETURNING 
+                id, email, name, phone, password_hash, role, 
+                email_verified, phone_verified, notification_preferences,
+                timezone, is_active, created_at, updated_at
+            "#,
+        )
+        .bind(request.name.trim())
+        .bind(request.email.to_lowercase().trim())
+        .bind(&formatted_phone)
+        .bind(&notification_prefs)
+        .bind(user_id)
+        .fetch_one(&self.pool)
+        .await?;
+
+        let user = User {
+            id: row.get("id"),
+            email: row.get("email"),
+            name: row.get("name"),
+            phone: row.get("phone"),
+            password_hash: row.get("password_hash"),
+            role: row.get("role"),
+            email_verified: row.get("email_verified"),
+            phone_verified: row.get("phone_verified"),
+            notification_preferences: row.get("notification_preferences"),
+            timezone: row.get("timezone"),
+            is_active: row.get("is_active"),
+            created_at: row.get("created_at"),
+            updated_at: row.get("updated_at"),
+        };
+
+        Ok(user)
     }
 
     fn format_phone_number(&self, phone: &str) -> String {

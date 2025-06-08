@@ -91,6 +91,29 @@ pub struct UserInfo {
     pub notification_preferences: NotificationPreferences,
 }
 
+/// Request structure for updating user profile
+#[derive(serde::Deserialize, validator::Validate)]
+pub struct UpdateProfileRequest {
+    #[validate(length(min = 1, max = 255, message = "Name is required"))]
+    /// Name of the user
+    pub name: String,
+
+    /// Email address of the user
+    #[validate(email(message = "Please enter a valid email"))]
+    pub email: String,
+
+    /// Phone number of the user
+    #[validate(length(
+        min = 10,
+        max = 15,
+        message = "Phone number must be between 10-15 digits"
+    ))]
+    pub phone: String,
+
+    /// Notification preferences for the user
+    pub notification_preferences: NotificationPreferences,
+}
+
 /// Request structure for user login
 #[derive(Debug, Deserialize, Validate)]
 pub struct LoginRequest {
