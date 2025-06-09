@@ -1,8 +1,8 @@
 use chrono::{Duration, Utc};
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use uuid::Uuid;
 
-use super::types::{AuthError, Claims, User};
+use crate::types::{AuthError, Claims, User};
 
 /// A service for handling JWT operations such as generating and verifying tokens.
 #[derive(Clone)]

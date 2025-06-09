@@ -1,0 +1,32 @@
+[package]
+name = "auth_services"
+version = "0.1.0"
+edition = "2024"
+
+[lints]
+workspace = true
+
+[dependencies]
+# Core dependencies
+log = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+rand = { workspace = true }
+
+# Web framework and utilities
+actix-web = { workspace = true }
+actix-files = { workspace = true }
+
+# Database dependencies
+sqlx = { workspace = true }
+
+# Authentication and security dependencies
+bcrypt = { workspace = true }
+jsonwebtoken = { workspace = true }
+uuid = { workspace = true }
+validator = { workspace = true }
+
+# Error handling and middleware
+futures-util = { workspace = true }
+thiserror = { workspace = true }

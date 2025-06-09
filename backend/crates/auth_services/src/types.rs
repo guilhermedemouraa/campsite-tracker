@@ -1,4 +1,3 @@
-// src/auth/types.rs
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -38,6 +37,27 @@ pub struct NotificationPreferences {
     pub email: bool,
     /// Whether the user wants to receive SMS notifications
     pub sms: bool,
+}
+
+/// Request structure for verifying email
+#[derive(serde::Deserialize)]
+pub struct VerifyEmailRequest {
+    /// Verification code sent to the user's email
+    pub code: String,
+}
+
+/// Request structure for verifying phone number
+#[derive(serde::Deserialize)]
+pub struct VerifyPhoneRequest {
+    /// Verification code sent to the user's phone
+    pub code: String,
+}
+
+/// Response structure for verification actions
+#[derive(serde::Serialize)]
+pub struct VerificationResponse {
+    /// Message indicating the result of the verification
+    pub message: String,
 }
 
 /// Response structure for user sign-up

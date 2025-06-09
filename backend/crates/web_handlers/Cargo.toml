@@ -1,0 +1,18 @@
+[package]
+name = "web_handlers"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+actix-web = { workspace = true }
+auth_services = { workspace = true }
+bcrypt = { workspace = true }
+chrono = { workspace = true }
+notification_services = { workspace = true }
+serde_json = { workspace = true }
+sqlx = { workspace = true }
+uuid = { workspace = true }
+validator = { workspace = true }
+
+[lints]
+workspace = true

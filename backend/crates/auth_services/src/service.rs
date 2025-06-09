@@ -1,11 +1,11 @@
-use bcrypt::{hash, verify, DEFAULT_COST};
+use bcrypt::{DEFAULT_COST, hash, verify};
 use chrono::Utc;
 use sqlx::{PgPool, Row};
 use uuid::Uuid;
 
-use crate::{
-    auth::types::{validate_phone_number, AuthError, NotificationPreferences, SignUpRequest, User},
-    UpdateProfileRequest,
+use crate::types::{
+    AuthError, NotificationPreferences, SignUpRequest, UpdateProfileRequest, User,
+    validate_phone_number,
 };
 
 /// A service for handling user authentication operations such as creating users,

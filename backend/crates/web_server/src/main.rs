@@ -2,9 +2,12 @@
 //! This crate provides REST API endpoints and serves the frontend application.
 
 use actix_files::Files;
-use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Result};
-use campsite_tracker::*;
+use actix_web::{App, HttpResponse, HttpServer, Result, middleware::Logger, web};
+use auth_services::middleware::AuthMiddleware;
+use postgres::database::*;
+use rec_gov::*;
 use std::path::Path;
+use web_handlers::*;
 
 async fn api_hello() -> Result<HttpResponse> {
     Ok(HttpResponse::Ok().json(serde_json::json!({

@@ -1,14 +1,14 @@
-use actix_web::{web, HttpResponse, Result};
+use actix_web::{HttpResponse, Result, web};
 use bcrypt::hash;
 use sqlx::{PgPool, Row};
 use validator::Validate;
 
-use crate::auth::jwt::JwtService;
-use crate::auth::middleware::AuthenticatedUser;
-use crate::auth::service::AuthService;
-use crate::auth::types::{
-    AuthError, AuthResponse, LoginRequest, SignUpRequest, UpdateProfileRequest, UserInfo,
-};
+use auth_services::jwt::JwtService;
+use auth_services::middleware::AuthenticatedUser;
+use auth_services::service::AuthService;
+use auth_services::types::*;
+use notification_services::service::*;
+use notification_services::types::*;
 
 /// Handles user signup by validating the request, creating a new user,
 /// generating access and refresh tokens, and returning the user info.
@@ -165,17 +165,6 @@ pub async fn update_profile(
     Ok(HttpResponse::Ok().json(user_info))
 }
 
-// Helper function to validate signup request manually if needed
-fn _validate_signup_request(request: &SignUpRequest) -> Result<(), AuthError> {
-    use validator::Validate;
-
-    request
-        .validate()
-        .map_err(|e| AuthError::Validation(format!("Validation error: {}", e)))?;
-
-    Ok(())
-}
-
 /// Health check endpoint for auth service
 pub async fn auth_health() -> Result<HttpResponse> {
     Ok(HttpResponse::Ok().json(serde_json::json!({
@@ -212,4 +201,137 @@ pub async fn list_users(pool: web::Data<PgPool>) -> Result<HttpResponse, AuthErr
         "users": users,
         "count": users.len()
     })))
+}
+
+/// Send email verification code
+pub async fn send_email_verification(
+    pool: web::Data<PgPool>,
+    notification_service: web::Data<NotificationService>,
+    verification_store: web::Data<VerificationStore>,
+    user: AuthenticatedUser,
+) -> Result<HttpResponse, AuthError> {
+    let auth_service = AuthService::new(pool.get_ref().clone());
+    let user_data = auth_service
+        .get_user_by_id(&user.0)
+        .await?
+        .ok_or(AuthError::UserNotFound)?;
+
+    let verification_code = NotificationService::generate_verification_code();
+    let key = format!("email_{}_{}", user.0, user_data.email);
+
+    store_verification_code(&verification_store, &key, &verification_code, 1440); // 24 hours
+
+    notification_service
+        .send_email_verification(
+            &user.0,
+            &user_data.email,
+            &user_data.name,
+            &verification_code,
+        )
+        .await
+        .map_err(|e| AuthError::Validation(format!("Failed to send email: {}", e)))?;
+
+    Ok(HttpResponse::Ok().json(VerificationResponse {
+        message: "Verification email sent successfully".to_string(),
+    }))
+}
+
+/// Verify email with code
+pub async fn verify_email(
+    pool: web::Data<PgPool>,
+    verification_store: web::Data<VerificationStore>,
+    user: AuthenticatedUser,
+    request: web::Json<VerifyEmailRequest>,
+) -> Result<HttpResponse, AuthError> {
+    let auth_service = AuthService::new(pool.get_ref().clone());
+    let user_data = auth_service
+        .get_user_by_id(&user.0)
+        .await?
+        .ok_or(AuthError::UserNotFound)?;
+
+    let key = format!("email_{}_{}", user.0, user_data.email);
+
+    match verify_code(&verification_store, &key, &request.code) {
+        Ok(true) => {
+            // Update user email verification status
+            auth_service
+                .update_user_verification(&user.0, Some(true), None)
+                .await?;
+
+            Ok(HttpResponse::Ok().json(VerificationResponse {
+                message: "Email verified successfully!".to_string(),
+            }))
+        }
+        Ok(false) => Err(AuthError::Validation(
+            "Invalid verification code".to_string(),
+        )),
+        Err(err) => Err(AuthError::Validation(err)),
+    }
+}
+
+/// Send SMS verification code
+pub async fn send_sms_verification(
+    pool: web::Data<PgPool>,
+    notification_service: web::Data<NotificationService>,
+    verification_store: web::Data<VerificationStore>,
+    user: AuthenticatedUser,
+) -> Result<HttpResponse, AuthError> {
+    let auth_service = AuthService::new(pool.get_ref().clone());
+    let user_data = auth_service
+        .get_user_by_id(&user.0)
+        .await?
+        .ok_or(AuthError::UserNotFound)?;
+
+    let phone = user_data
+        .phone
+        .ok_or(AuthError::Validation("No phone number on file".to_string()))?;
+    let verification_code = NotificationService::generate_verification_code();
+    let key = format!("sms_{}_{}", user.0, phone);
+
+    store_verification_code(&verification_store, &key, &verification_code, 10); // 10 minutes
+
+    notification_service
+        .send_sms_verification(&user.0, &phone, &verification_code)
+        .await
+        .map_err(|e| AuthError::Validation(format!("Failed to send SMS: {}", e)))?;
+
+    Ok(HttpResponse::Ok().json(VerificationResponse {
+        message: "Verification SMS sent successfully".to_string(),
+    }))
+}
+
+/// Verify phone with code
+pub async fn verify_phone(
+    pool: web::Data<PgPool>,
+    verification_store: web::Data<VerificationStore>,
+    user: AuthenticatedUser,
+    request: web::Json<VerifyPhoneRequest>,
+) -> Result<HttpResponse, AuthError> {
+    let auth_service = AuthService::new(pool.get_ref().clone());
+    let user_data = auth_service
+        .get_user_by_id(&user.0)
+        .await?
+        .ok_or(AuthError::UserNotFound)?;
+
+    let phone = user_data
+        .phone
+        .ok_or(AuthError::Validation("No phone number on file".to_string()))?;
+    let key = format!("sms_{}_{}", user.0, phone);
+
+    match verify_code(&verification_store, &key, &request.code) {
+        Ok(true) => {
+            // Update user phone verification status
+            auth_service
+                .update_user_verification(&user.0, None, Some(true))
+                .await?;
+
+            Ok(HttpResponse::Ok().json(VerificationResponse {
+                message: "Phone number verified successfully!".to_string(),
+            }))
+        }
+        Ok(false) => Err(AuthError::Validation(
+            "Invalid verification code".to_string(),
+        )),
+        Err(err) => Err(AuthError::Validation(err)),
+    }
 }

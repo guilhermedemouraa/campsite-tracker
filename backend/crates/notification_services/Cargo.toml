@@ -1,0 +1,22 @@
+[package]
+name = "notification_services"
+version = "0.1.0"
+edition = "2024"
+
+[lints]
+workspace = true
+
+[dependencies]
+# Core dependencies
+chrono = { workspace = true }
+log = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+
+# AWS SDK for Notification services
+aws-config = "1.6.3"
+aws-sdk-ses = "1.75"
+aws-sdk-sns = "1.73"
+
+# Authentication and security dependencies
+uuid = { workspace = true }

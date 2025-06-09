@@ -1,17 +1,16 @@
-// src/auth/middleware.rs
 use actix_web::{
-    body::EitherBody,
-    dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     Error, HttpMessage, HttpResponse, Result,
+    body::EitherBody,
+    dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
 };
 use futures_util::future::LocalBoxFuture;
 use std::{
-    future::{ready, Ready},
+    future::{Ready, ready},
     rc::Rc,
 };
 use uuid::Uuid;
 
-use super::jwt::JwtService;
+use crate::jwt::JwtService;
 
 /// Middleware for handling authentication by verifying JWT tokens
 /// and extracting user information from the request.

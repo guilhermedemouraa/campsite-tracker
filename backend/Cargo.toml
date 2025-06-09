@@ -1,27 +1,16 @@
-[package]
-name = "campsite-tracker"
-version = "0.1.0"
-edition = "2021"
-resolver = "2"
+[workspace]
+members = ["crates/*"]
+resolver = "3"
 
-[lints]
-workspace = true
-
-[[bin]]
-name = "campsite-tracker"
-path = "src/main.rs"
-
-[lib]
-name = "campsite_tracker"
-path = "src/lib.rs"
-
-[dependencies]
+[workspace.dependencies]
 # Core dependencies
+chrono = { version = "0.4", features = ["serde"] }
 env_logger = "0.11.8"
 log = "0.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tokio = "1.45"
+rand = "0.9.1"
+tokio = { version = "1.45", features = ["full"] }
 
 # Web framework and utilities
 actix-web = "4.4"
@@ -37,14 +26,14 @@ sqlx = { version = "0.8.6", features = [
   "chrono",
   "json",
 ] }
-uuid = { version = "1.0", features = ["v4", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
 
 # Authentication and security dependencies
 bcrypt = "0.17"
 jsonwebtoken = "9.2"
 regex = "1.10"
+uuid = { version = "1.0", features = ["v4", "serde"] }
 validator = { version = "0.20", features = ["derive"] }
+
 
 # Error handling and middleware
 anyhow = "1.0"
@@ -53,6 +42,14 @@ thiserror = "2.0"
 
 # Environment variables
 dotenvy = "0.15"
+
+# Internal dependencies
+auth_services = { path = "crates/auth_services" }
+notification_services = { path = "crates/notification_services" }
+rec_gov = { path = "crates/rec_gov" }
+postgres = { path = "crates/postgres" }
+web_handlers = { path = "crates/web_handlers" }
+web_server = { path = "crates/web_server" }
 
 [workspace.lints.rust]
 missing_docs = "warn"

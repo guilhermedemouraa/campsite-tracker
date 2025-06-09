@@ -1,0 +1,14 @@
+[package]
+name = "rec_gov"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+actix-web = { workspace = true }
+log = { workspace = true }
+reqwest = { workspace = true }
+serde_json = { workspace = true }
+urlencoding = { workspace = true }
+
+[lints]
+workspace = true
