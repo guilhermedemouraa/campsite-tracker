@@ -235,26 +235,46 @@ impl AuthService {
         user_id: &Uuid,
         request: &UpdateProfileRequest,
     ) -> Result<User, AuthError> {
-        // Validate phone number format
-        if !validate_phone_number(&request.phone) {
-            return Err(AuthError::InvalidPhoneNumber);
-        }
+        // Get current user to compare changes
+        let current_user = self
+            .get_user_by_id(user_id)
+            .await?
+            .ok_or(AuthError::UserNotFound)?;
 
-        // Format phone number to E.164 format
-        let formatted_phone = self.format_phone_number(&request.phone);
+        // Check if email or phone changed
+        let email_changed = current_user.email != request.email;
+        let phone_changed = current_user.phone.as_deref() != Some(&request.phone);
 
-        // Serialize notification preferences to JSON
+        // Determine new verification status
+        let new_email_verified = if email_changed {
+            false
+        } else {
+            current_user.email_verified
+        };
+        let new_phone_verified = if phone_changed {
+            false
+        } else {
+            current_user.phone_verified
+        };
+
+        // Serialize notification preferences to JSON and map error to AuthError
         let notification_prefs =
             serde_json::to_value(&request.notification_preferences).map_err(|e| {
                 AuthError::Validation(format!("Invalid notification preferences: {}", e))
             })?;
 
-        // Update the user
+        // Build the update query and manually construct the User
         let row = sqlx::query(
             r#"
             UPDATE users 
-            SET name = $1, email = $2, phone = $3, notification_preferences = $4, updated_at = NOW()
-            WHERE id = $5 AND is_active = true
+            SET name = $1, 
+                email = $2, 
+                phone = $3,
+                email_verified = $4,
+                phone_verified = $5,
+                notification_preferences = $6,
+                updated_at = NOW()
+            WHERE id = $7
             RETURNING 
                 id, email, name, phone, password_hash, role, 
                 email_verified, phone_verified, notification_preferences,
@@ -263,13 +283,15 @@ impl AuthService {
         )
         .bind(request.name.trim())
         .bind(request.email.to_lowercase().trim())
-        .bind(&formatted_phone)
+        .bind(&request.phone)
+        .bind(new_email_verified)
+        .bind(new_phone_verified)
         .bind(&notification_prefs)
         .bind(user_id)
         .fetch_one(&self.pool)
         .await?;
 
-        let user = User {
+        let updated_user = User {
             id: row.get("id"),
             email: row.get("email"),
             name: row.get("name"),
@@ -285,7 +307,7 @@ impl AuthService {
             updated_at: row.get("updated_at"),
         };
 
-        Ok(user)
+        Ok(updated_user)
     }
 
     fn format_phone_number(&self, phone: &str) -> String {

@@ -159,31 +159,6 @@
   color: #374151;
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
-.stat-card {
-  padding: 1.5rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  background: #f9fafb;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #6b7280;
-  margin-bottom: 0.5rem;
-}
-
-.stat-value {
-  font-size: 1.125rem;
-  font-weight: 600;
-}
-
 .stat-value.verified {
   color: #059669;
 }
@@ -234,16 +209,101 @@
   cursor: not-allowed;
 }
 
-@media (max-width: 768px) {
-  .user-profile {
-    padding: 1rem;
-  }
+/* Verification Section Styles */
+/* Add these new styles to your existing UserProfile.css */
 
-  .profile-section {
-    padding: 1.5rem;
-  }
+.verification-inline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 8px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
 
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
+.verification-button-small {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.verification-button-small:hover:not(:disabled) {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+
+.verification-button-small:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.change-note {
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.verification-input-inline {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+  padding: 8px;
+  background: #f0f9ff;
+  border-radius: 6px;
+  border: 1px solid #0ea5e9;
+}
+
+.verification-code-input-small {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+  letter-spacing: 1px;
+  font-family: monospace;
+  max-width: 120px;
+}
+
+.verification-code-input-small:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+}
+
+.verify-button-small {
+  padding: 6px 12px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.verify-button-small:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.verification-note {
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
+  margin-left: 8px;
 }

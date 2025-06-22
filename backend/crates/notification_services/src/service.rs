@@ -5,11 +5,13 @@ use aws_sdk_sns::Client as SnsClient;
 use chrono::{Duration, Utc};
 use std::{
     collections::HashMap,
+    error::Error,
     sync::{Arc, Mutex},
 };
 use uuid::Uuid;
 
 /// Notification service for sending emails and SMS messages.
+#[derive(Debug, Clone)]
 pub struct NotificationService {
     ses_client: SesClient,
     sns_client: SnsClient,
@@ -24,8 +26,8 @@ impl NotificationService {
         let ses_client = SesClient::new(&config);
         let sns_client = SnsClient::new(&config);
 
-        let from_email =
-            std::env::var("FROM_EMAIL").unwrap_or_else(|_| "noreply@camptracker.com".to_string());
+        let from_email = std::env::var("FROM_EMAIL")
+            .unwrap_or_else(|_| "noreplycampsitetracker@gmail.com".to_string());
 
         Ok(Self {
             ses_client,
@@ -42,6 +44,14 @@ impl NotificationService {
         name: &str,
         verification_code: &str,
     ) -> Result<(), NotificationError> {
+        log::info!(
+            "📧 Attempting to send email verification to {} for user {}",
+            email,
+            user_id
+        );
+        log::info!("📧 From email: {}", self.from_email);
+        log::info!("📧 Verification code: {}", verification_code);
+
         let subject = "Verify your CampTracker email";
         let html_body = format!(
             r#"
@@ -81,46 +91,82 @@ impl NotificationService {
             name, verification_code
         );
 
-        self.ses_client
+        // Build the message step by step with better error handling
+        let subject_content = aws_sdk_ses::types::Content::builder()
+            .data(subject)
+            .build()
+            .map_err(|e| {
+                log::error!("❌ Failed to build subject content: {}", e);
+                NotificationError::SesError(format!("Failed to build subject: {}", e))
+            })?;
+
+        let html_content = aws_sdk_ses::types::Content::builder()
+            .data(html_body)
+            .build()
+            .map_err(|e| {
+                log::error!("❌ Failed to build HTML content: {}", e);
+                NotificationError::SesError(format!("Failed to build HTML body: {}", e))
+            })?;
+
+        let text_content = aws_sdk_ses::types::Content::builder()
+            .data(text_body)
+            .build()
+            .map_err(|e| {
+                log::error!("❌ Failed to build text content: {}", e);
+                NotificationError::SesError(format!("Failed to build text body: {}", e))
+            })?;
+
+        let body = aws_sdk_ses::types::Body::builder()
+            .html(html_content)
+            .text(text_content)
+            .build();
+
+        let message = aws_sdk_ses::types::Message::builder()
+            .subject(subject_content)
+            .body(body)
+            .build();
+
+        let destination = aws_sdk_ses::types::Destination::builder()
+            .to_addresses(email)
+            .build();
+
+        log::info!("📧 Sending email via AWS SES...");
+
+        let result = self
+            .ses_client
             .send_email()
             .source(&self.from_email)
-            .destination(
-                aws_sdk_ses::types::Destination::builder()
-                    .to_addresses(email)
-                    .build(),
-            )
-            .message(
-                aws_sdk_ses::types::Message::builder()
-                    .subject(
-                        aws_sdk_ses::types::Content::builder()
-                            .data(subject)
-                            .build()
-                            .map_err(|e| NotificationError::SesError(e.to_string()))?,
-                    )
-                    .body(
-                        aws_sdk_ses::types::Body::builder()
-                            .html(
-                                aws_sdk_ses::types::Content::builder()
-                                    .data(html_body)
-                                    .build()
-                                    .map_err(|e| NotificationError::SesError(e.to_string()))?,
-                            )
-                            .text(
-                                aws_sdk_ses::types::Content::builder()
-                                    .data(text_body)
-                                    .build()
-                                    .map_err(|e| NotificationError::SesError(e.to_string()))?,
-                            )
-                            .build(),
-                    )
-                    .build(),
-            )
+            .destination(destination)
+            .message(message)
             .send()
-            .await
-            .map_err(|e| NotificationError::SesError(e.to_string()))?;
+            .await;
 
-        log::info!("Email verification sent to {} for user {}", email, user_id);
-        Ok(())
+        match result {
+            Ok(output) => {
+                log::info!(
+                    "✅ Email sent successfully to {} for user {}",
+                    email,
+                    user_id
+                );
+                let message_id = output.message_id();
+                log::info!("📧 SES Message ID: {}", message_id);
+                Ok(())
+            }
+            Err(e) => {
+                log::error!("❌ AWS SES error: {:#?}", e);
+                log::error!("❌ SES error source: {:?}", e.source());
+
+                // Check for specific error types
+                let error_msg = if let Some(service_error) = e.as_service_error() {
+                    log::error!("❌ Service error details: {:?}", service_error);
+                    format!("AWS SES service error: {:?}", service_error)
+                } else {
+                    format!("AWS SES error: {}", e)
+                };
+
+                Err(NotificationError::SesError(error_msg))
+            }
+        }
     }
 
     /// Sends an SMS verification message to the user.

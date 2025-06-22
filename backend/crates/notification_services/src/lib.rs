@@ -7,3 +7,6 @@
 pub mod service;
 /// Types and structures used in authentication services.
 pub mod types;
+
+pub use service::{NotificationService, create_verification_store};
+pub use types::{NotificationError, VerificationStore};

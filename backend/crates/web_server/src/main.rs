@@ -4,6 +4,7 @@
 use actix_files::Files;
 use actix_web::{App, HttpResponse, HttpServer, Result, middleware::Logger, web};
 use auth_services::middleware::AuthMiddleware;
+use notification_services::{NotificationService, create_verification_store};
 use postgres::database::*;
 use rec_gov::*;
 use std::path::Path;
@@ -57,6 +58,24 @@ async fn main() -> std::io::Result<()> {
         }
     };
 
+    // Create notification service
+    let notification_service = match NotificationService::new().await {
+        Ok(service) => {
+            log::info!("📧 Notification service initialized successfully");
+            service
+        }
+        Err(e) => {
+            log::error!("❌ Failed to initialize notification service: {}", e);
+            log::warn!("🔧 Check AWS credentials and SES setup");
+            // For now, let's not exit - you can still test other features
+            // std::process::exit(1);
+            NotificationService::new().await.unwrap() // This will fail gracefully in handlers
+        }
+    };
+
+    // Create verification store
+    let verification_store = create_verification_store();
+
     let frontend_path = get_frontend_path();
     log::info!("📁 Frontend files location: {}", frontend_path);
     log::info!("🌐 Server will be available at: http://0.0.0.0:8080");
@@ -64,6 +83,8 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(pool.clone()))
+            .app_data(web::Data::new(notification_service.clone()))
+            .app_data(web::Data::new(verification_store.clone()))
             .wrap(Logger::default())
             .service(
                 web::scope("/api")
@@ -82,7 +103,15 @@ async fn main() -> std::io::Result<()> {
                         web::scope("/user")
                             .wrap(AuthMiddleware)
                             .route("/profile", web::get().to(get_profile))
-                            .route("/profile/update", web::put().to(update_profile)),
+                            .route("/profile/update", web::put().to(update_profile))
+                            // Add verification routes
+                            .route(
+                                "/verify/email/send",
+                                web::post().to(send_email_verification),
+                            )
+                            .route("/verify/email", web::post().to(verify_email))
+                            .route("/verify/sms/send", web::post().to(send_sms_verification))
+                            .route("/verify/sms", web::post().to(verify_phone)),
                     ),
             )
             .route(
