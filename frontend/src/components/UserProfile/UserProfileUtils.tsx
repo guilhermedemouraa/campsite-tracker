@@ -63,23 +63,6 @@ export const sendEmailVerification = async (): Promise<{ message: string }> => {
   return response.json();
 };
 
-export const verifyEmail = async (
-  code: string,
-): Promise<{ message: string }> => {
-  const response = await fetch("/api/user/verify/email", {
-    method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ code }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || "Invalid verification code");
-  }
-
-  return response.json();
-};
-
 export const sendSmsVerification = async (): Promise<{ message: string }> => {
   const response = await fetch("/api/user/verify/sms/send", {
     method: "POST",

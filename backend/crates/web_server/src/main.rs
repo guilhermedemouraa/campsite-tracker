@@ -91,6 +91,7 @@ async fn main() -> std::io::Result<()> {
                     // Public routes
                     .route("/hello", web::get().to(api_hello))
                     .route("/facilities/search", web::get().to(facilities_search))
+                    .route("/dev/delete-user", web::delete().to(delete_user_by_email))
                     .service(
                         web::scope("/auth")
                             .route("/health", web::get().to(auth_health))
@@ -107,9 +108,8 @@ async fn main() -> std::io::Result<()> {
                             // Add verification routes
                             .route(
                                 "/verify/email/send",
-                                web::post().to(send_email_verification),
+                                web::post().to(send_email_verification_link),
                             )
-                            .route("/verify/email", web::post().to(verify_email))
                             .route("/verify/sms/send", web::post().to(send_sms_verification))
                             .route("/verify/sms", web::post().to(verify_phone)),
                     ),
@@ -118,6 +118,7 @@ async fn main() -> std::io::Result<()> {
                 "/health",
                 web::get().to(|| async { HttpResponse::Ok().body("OK") }),
             )
+            .route("/verify-email", web::get().to(verify_email_with_token))
             .service(Files::new("/", frontend_path).index_file("index.html"))
     })
     .bind("0.0.0.0:8080")?

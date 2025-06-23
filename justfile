@@ -8,6 +8,28 @@ localusers:
 
 awsusers:
   curl -X GET http://18.144.164.38:8080/api/auth/users
+
+registeremail email:
+  aws ses verify-email-identity --email-address {{email}} --region us-west-2
+
+deleteuser email:
+  #!/usr/bin/env bash
+  echo "🗑️ Attempting to delete user: {{email}}"
+  response=$(curl -X DELETE "http://localhost:8080/api/dev/delete-user?email={{email}}" \
+    -H "Content-Type: application/json" \
+    -s -w "%{http_code}")
+  
+  http_code="${response: -3}"
+  body="${response%???}"
+  
+  if [ "$http_code" -eq 200 ]; then
+    echo "✅ User deleted successfully"
+    echo "$body" | jq '.' 2>/dev/null || echo "$body"
+  else
+    echo "❌ Failed to delete user (HTTP $http_code)"
+    echo "$body"
+  fi
+
 # === Backend Commands ===
 
 # Format backend code

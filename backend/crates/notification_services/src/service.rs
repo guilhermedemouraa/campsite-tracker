@@ -5,7 +5,6 @@ use aws_sdk_sns::Client as SnsClient;
 use chrono::{Duration, Utc};
 use std::{
     collections::HashMap,
-    error::Error,
     sync::{Arc, Mutex},
 };
 use uuid::Uuid;
@@ -36,21 +35,25 @@ impl NotificationService {
         })
     }
 
-    /// Sends an email verification message to the user.
-    pub async fn send_email_verification(
+    /// Sends an email verification LINK to the user (NEW FUNCTION)
+    pub async fn send_email_verification_link(
         &self,
         user_id: &Uuid,
         email: &str,
         name: &str,
-        verification_code: &str,
+        verification_token: &str,
     ) -> Result<(), NotificationError> {
         log::info!(
-            "📧 Attempting to send email verification to {} for user {}",
+            "📧 Sending verification link to {} for user {}",
             email,
             user_id
         );
-        log::info!("📧 From email: {}", self.from_email);
-        log::info!("📧 Verification code: {}", verification_code);
+
+        // Build the verification URL
+        let verification_url = format!(
+            "http://localhost:8080/verify-email?token={}",
+            verification_token
+        );
 
         let subject = "Verify your CampTracker email";
         let html_body = format!(
@@ -66,15 +69,19 @@ impl NotificationService {
                         Welcome to CampTracker! Please verify your email address to complete your account setup.
                     </p>
                     <div style="text-align: center; margin: 30px 0;">
-                        <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; display: inline-block;">
-                            <p style="margin: 0; color: #6b7280; font-size: 14px;">Your verification code:</p>
-                            <h1 style="margin: 10px 0; color: #4a6741; font-family: monospace; letter-spacing: 3px;">
-                                {}
-                            </h1>
-                        </div>
+                        <a href="{}" style="
+                            display: inline-block;
+                            background: #4a6741;
+                            color: white;
+                            text-decoration: none;
+                            padding: 12px 24px;
+                            border-radius: 8px;
+                            font-weight: bold;
+                            font-size: 16px;
+                        ">Verify Email Address</a>
                     </div>
                     <p style="font-size: 14px; color: #6b7280;">
-                        This code will expire in 24 hours. If you didn't create this account, you can safely ignore this email.
+                        This link will expire in 24 hours. If you didn't create this account, you can safely ignore this email.
                     </p>
                 </div>
                 <div style="background: #f9fafb; padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">
@@ -83,15 +90,15 @@ impl NotificationService {
             </body>
             </html>
             "#,
-            name, verification_code
+            name, verification_url
         );
 
         let text_body = format!(
-            "Hi {}!\n\nWelcome to CampTracker! Your email verification code is: {}\n\nThis code will expire in 24 hours.\n\nIf you didn't create this account, you can safely ignore this email.\n\n© 2025 CampTracker",
-            name, verification_code
+            "Hi {}!\n\nWelcome to CampTracker!\n\nPlease verify your email by visiting this link:\n{}\n\nThis link will expire in 24 hours.\n\n© 2025 CampTracker",
+            name, verification_url
         );
 
-        // Build the message step by step with better error handling
+        // Rest is the same as your existing send_email_verification function
         let subject_content = aws_sdk_ses::types::Content::builder()
             .data(subject)
             .build()
@@ -144,7 +151,7 @@ impl NotificationService {
         match result {
             Ok(output) => {
                 log::info!(
-                    "✅ Email sent successfully to {} for user {}",
+                    "✅ Email verification link sent to {} for user {}",
                     email,
                     user_id
                 );
@@ -154,16 +161,11 @@ impl NotificationService {
             }
             Err(e) => {
                 log::error!("❌ AWS SES error: {:#?}", e);
-                log::error!("❌ SES error source: {:?}", e.source());
-
-                // Check for specific error types
                 let error_msg = if let Some(service_error) = e.as_service_error() {
-                    log::error!("❌ Service error details: {:?}", service_error);
                     format!("AWS SES service error: {:?}", service_error)
                 } else {
                     format!("AWS SES error: {}", e)
                 };
-
                 Err(NotificationError::SesError(error_msg))
             }
         }
@@ -204,11 +206,23 @@ impl NotificationService {
         Ok(())
     }
 
-    /// Generates a random 6-digit verification code.
+    /// Generates a random 6-digit verification code (for SMS).
     pub fn generate_verification_code() -> String {
         use rand::Rng;
         let mut rng = rand::rng();
         format!("{:06}", rng.random_range(100000..=999999))
+    }
+
+    /// Generate secure token for email links
+    pub fn generate_verification_token() -> String {
+        use rand::Rng;
+        let mut rng = rand::rng();
+        (0..32)
+            .map(|_| {
+                let chars = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                chars[rng.random_range(0..chars.len())] as char
+            })
+            .collect()
     }
 }
 

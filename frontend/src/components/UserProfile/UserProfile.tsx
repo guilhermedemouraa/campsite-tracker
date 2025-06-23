@@ -9,14 +9,12 @@ import {
   CheckCircle,
   XCircle,
   Send,
-  Shield,
 } from "lucide-react";
 import {
   UserData,
   UpdateProfileData,
   updateProfile,
   sendEmailVerification,
-  verifyEmail,
   sendSmsVerification,
   verifySms,
 } from "./UserProfileUtils";
@@ -107,9 +105,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
     setVerificationLoading((prev) => ({ ...prev, email: true }));
     try {
       await sendEmailVerification();
-      setShowVerificationInput((prev) => ({ ...prev, email: true }));
       alert(
-        "Verification email sent! Check your inbox and enter the code below.",
+        "Verification email sent! Please check your inbox and click the verification link."
       );
     } catch (error) {
       console.error("Email verification error:", error);
@@ -138,25 +135,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
       );
     } finally {
       setVerificationLoading((prev) => ({ ...prev, sms: false }));
-    }
-  };
-
-  const handleVerifyEmail = async () => {
-    if (!verificationCodes.email || verificationCodes.email.length !== 6) {
-      alert("Please enter a valid 6-digit verification code");
-      return;
-    }
-
-    try {
-      await verifyEmail(verificationCodes.email);
-      const updatedUser = { ...user, email_verified: true };
-      onUserUpdate(updatedUser);
-      setShowVerificationInput((prev) => ({ ...prev, email: false }));
-      setVerificationCodes((prev) => ({ ...prev, email: "" }));
-      alert("Email verified successfully! 🎉");
-    } catch (error) {
-      console.error("Email verification error:", error);
-      alert(error instanceof Error ? error.message : "Failed to verify email");
     }
   };
 
@@ -286,30 +264,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
                       Save changes first to verify
                     </span>
                   )}
-                </div>
-              )}
-
-              {showVerificationInput.email && (
-                <div className="verification-input-inline">
-                  <input
-                    type="text"
-                    value={verificationCodes.email}
-                    onChange={(e) =>
-                      setVerificationCodes((prev) => ({
-                        ...prev,
-                        email: e.target.value,
-                      }))
-                    }
-                    placeholder="Enter 6-digit code"
-                    maxLength={6}
-                    className="verification-code-input-small"
-                  />
-                  <button
-                    onClick={handleVerifyEmail}
-                    className="verify-button-small"
-                  >
-                    Verify
-                  </button>
                 </div>
               )}
             </div>

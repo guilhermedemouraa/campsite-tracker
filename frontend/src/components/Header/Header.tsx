@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { User, MapPin, LogOut, Settings, ChevronDown } from "lucide-react";
-import SignUpModal from "../Auth/SignUpModal";
-import LoginModal from "../Auth/LoginModal";
+import SignUpModal from "../Auth/SignUp/SignUpModal";
+import LoginModal from "../Auth/Login/LoginModal";
 import "./Header.css";
 
 interface HeaderProps {

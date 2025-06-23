@@ -1,18 +1,12 @@
 import React, { useState } from "react";
 import { X, User, Mail, Phone, Lock, Eye, EyeOff } from "lucide-react";
+import {
+  SignUpFormData,
+  validateForm,
+  signUpUser,
+  AuthResponse,
+} from "./SignUpUtils";
 import "./SignUpModal.css";
-
-interface SignUpFormData {
-  name: string;
-  email: string;
-  phone: string;
-  password: string;
-  confirmPassword: string;
-  notifications: {
-    email: boolean;
-    sms: boolean;
-  };
-}
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -44,88 +38,20 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<SignUpFormData>>({});
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<SignUpFormData> = {};
-
-    // Name validation
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
-
-    // Phone validation (basic US format)
-    const phoneRegex =
-      /^\+?1?[-.\s]?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})$/;
-    if (!formData.phone) {
-      newErrors.phone = "Phone number is required";
-    } else if (!phoneRegex.test(formData.phone)) {
-      newErrors.phone = "Please enter a valid US phone number";
-    }
-
-    // Password validation
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    }
-
-    // Confirm password validation
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    const formErrors = validateForm(formData);
+    setErrors(formErrors);
+
+    if (Object.keys(formErrors).length > 0) {
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Format phone number to E.164 format
-      const formattedPhone = formatPhoneNumber(formData.phone);
-
-      const signUpData = {
-        name: formData.name.trim(),
-        email: formData.email.toLowerCase().trim(),
-        phone: formattedPhone,
-        password: formData.password,
-        notification_preferences: formData.notifications,
-      };
-
-      console.log("Signing up user:", {
-        ...signUpData,
-        password: "[REDACTED]",
-      });
-
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(signUpData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Sign up failed");
-      }
-
-      const result = await response.json();
-      console.log("Sign up successful:", result);
+      const result: AuthResponse = await signUpUser(formData);
 
       // Store tokens in localStorage
       localStorage.setItem("access_token", result.access_token);
@@ -139,8 +65,16 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
 
       onClose();
 
-      // Show success message
-      alert("Account created successfully! Welcome to CampTracker!");
+      // Show success message with verification prompt
+      if (!result.user.email_verified) {
+        alert(
+          "Account created successfully! 🎉\n\n" +
+            "A verification email has been sent to your email address. " +
+            "Please check your inbox and verify your email to enable notifications.",
+        );
+      } else {
+        alert("Account created successfully! Welcome to CampTracker!");
+      }
     } catch (error) {
       console.error("Sign up error:", error);
       alert(
@@ -153,26 +87,11 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
     }
   };
 
-  const formatPhoneNumber = (phone: string): string => {
-    // Remove all non-digit characters
-    const digits = phone.replace(/\D/g, "");
-
-    // Add +1 if it's a 10-digit US number
-    if (digits.length === 10) {
-      return `+1${digits}`;
-    } else if (digits.length === 11 && digits.startsWith("1")) {
-      return `+${digits}`;
-    }
-
-    return `+${digits}`;
-  };
-
   const handleInputChange = (
     field: keyof SignUpFormData,
     value: string | boolean,
   ) => {
     if (field === "notifications") {
-      // This shouldn't happen with current UI, but keeping for type safety
       return;
     }
 
@@ -212,7 +131,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="signup-form">
+        <form onSubmit={handleSubmit} className="modal-form">
           {/* Name Field */}
           <div className="form-group">
             <label className="form-label">Full Name</label>
