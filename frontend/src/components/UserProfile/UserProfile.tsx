@@ -106,7 +106,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
     try {
       await sendEmailVerification();
       alert(
-        "Verification email sent! Please check your inbox and click the verification link."
+        "Verification email sent! Please check your inbox and click the verification link.",
       );
     } catch (error) {
       console.error("Email verification error:", error);

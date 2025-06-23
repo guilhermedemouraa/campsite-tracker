@@ -6,7 +6,7 @@ import {
   signUpUser,
   AuthResponse,
 } from "./SignUpUtils";
-import "./SignUpModal.css";
+import styles from "./SignUpModal.module.css";
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -122,107 +122,107 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2 className="modal-title">Create Your Account</h2>
-          <button className="modal-close" onClick={onClose}>
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>Create Your Account</h2>
+          <button className={styles.modalClose} onClick={onClose}>
             <X size={24} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="modal-form">
+        <form onSubmit={handleSubmit} className={styles.modalForm}>
           {/* Name Field */}
-          <div className="form-group">
-            <label className="form-label">Full Name</label>
-            <div className="input-wrapper">
-              <User className="input-icon" size={20} />
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Full Name</label>
+            <div className={styles.inputWrapper}>
+              <User className={styles.inputIcon} size={20} />
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
                 placeholder="Enter your full name"
-                className={`form-input ${errors.name ? "error" : ""}`}
+                className={`${styles.formInput} ${errors.name ? styles.error : ""}`}
                 disabled={isLoading}
               />
             </div>
             {errors.name && (
-              <span className="error-message">{errors.name}</span>
+              <span className={styles.errorMessage}>{errors.name}</span>
             )}
           </div>
 
           {/* Email Field */}
-          <div className="form-group">
-            <label className="form-label">Email Address</label>
-            <div className="input-wrapper">
-              <Mail className="input-icon" size={20} />
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Email Address</label>
+            <div className={styles.inputWrapper}>
+              <Mail className={styles.inputIcon} size={20} />
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 placeholder="Enter your email"
-                className={`form-input ${errors.email ? "error" : ""}`}
+                className={`${styles.formInput} ${errors.email ? styles.error : ""}`}
                 disabled={isLoading}
               />
             </div>
             {errors.email && (
-              <span className="error-message">{errors.email}</span>
+              <span className={styles.errorMessage}>{errors.email}</span>
             )}
           </div>
 
           {/* Phone Field */}
-          <div className="form-group">
-            <label className="form-label">Phone Number</label>
-            <div className="input-wrapper">
-              <Phone className="input-icon" size={20} />
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Phone Number</label>
+            <div className={styles.inputWrapper}>
+              <Phone className={styles.inputIcon} size={20} />
               <input
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
                 placeholder="(555) 123-4567"
-                className={`form-input ${errors.phone ? "error" : ""}`}
+                className={`${styles.formInput} ${errors.phone ? styles.error : ""}`}
                 disabled={isLoading}
               />
             </div>
             {errors.phone && (
-              <span className="error-message">{errors.phone}</span>
+              <span className={styles.errorMessage}>{errors.phone}</span>
             )}
-            <div className="field-help">
+            <div className={styles.fieldHelp}>
               We'll use this to send you campsite alerts
             </div>
           </div>
 
           {/* Password Field */}
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <div className="input-wrapper">
-              <Lock className="input-icon" size={20} />
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Password</label>
+            <div className={styles.inputWrapper}>
+              <Lock className={styles.inputIcon} size={20} />
               <input
                 type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={(e) => handleInputChange("password", e.target.value)}
                 placeholder="Create a password"
-                className={`form-input ${errors.password ? "error" : ""}`}
+                className={`${styles.formInput} ${errors.password ? styles.error : ""}`}
                 disabled={isLoading}
               />
               <button
                 type="button"
-                className="password-toggle"
+                className={styles.passwordToggle}
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
             {errors.password && (
-              <span className="error-message">{errors.password}</span>
+              <span className={styles.errorMessage}>{errors.password}</span>
             )}
           </div>
 
           {/* Confirm Password Field */}
-          <div className="form-group">
-            <label className="form-label">Confirm Password</label>
-            <div className="input-wrapper">
-              <Lock className="input-icon" size={20} />
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Confirm Password</label>
+            <div className={styles.inputWrapper}>
+              <Lock className={styles.inputIcon} size={20} />
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 value={formData.confirmPassword}
@@ -230,27 +230,29 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
                   handleInputChange("confirmPassword", e.target.value)
                 }
                 placeholder="Confirm your password"
-                className={`form-input ${errors.confirmPassword ? "error" : ""}`}
+                className={`${styles.formInput} ${errors.confirmPassword ? styles.error : ""}`}
                 disabled={isLoading}
               />
               <button
                 type="button"
-                className="password-toggle"
+                className={styles.passwordToggle}
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
                 {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
             {errors.confirmPassword && (
-              <span className="error-message">{errors.confirmPassword}</span>
+              <span className={styles.errorMessage}>
+                {errors.confirmPassword}
+              </span>
             )}
           </div>
 
           {/* Notification Preferences */}
-          <div className="form-group">
-            <label className="form-label">Notification Preferences</label>
-            <div className="checkbox-group">
-              <label className="checkbox-label">
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Notification Preferences</label>
+            <div className={styles.checkboxGroup}>
+              <label className={styles.checkboxLabel}>
                 <input
                   type="checkbox"
                   checked={formData.notifications.email}
@@ -259,9 +261,9 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
                   }
                   disabled={isLoading}
                 />
-                <span className="checkbox-text">Email notifications</span>
+                <span className={styles.checkboxText}>Email notifications</span>
               </label>
-              <label className="checkbox-label">
+              <label className={styles.checkboxLabel}>
                 <input
                   type="checkbox"
                   checked={formData.notifications.sms}
@@ -270,7 +272,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
                   }
                   disabled={isLoading}
                 />
-                <span className="checkbox-text">SMS notifications</span>
+                <span className={styles.checkboxText}>SMS notifications</span>
               </label>
             </div>
           </div>
@@ -278,18 +280,18 @@ const SignUpModal: React.FC<SignUpModalProps> = ({
           {/* Submit Button */}
           <button
             type="submit"
-            className={`submit-button ${isLoading ? "loading" : ""}`}
+            className={`${styles.submitButton} ${isLoading ? styles.loading : ""}`}
             disabled={isLoading}
           >
             {isLoading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
-        <div className="modal-footer">
+        <div className={styles.modalFooter}>
           <p>
             Already have an account?{" "}
             <button
-              className="link-button"
+              className={styles.linkButton}
               onClick={onSwitchToLogin || onClose}
             >
               Sign in instead

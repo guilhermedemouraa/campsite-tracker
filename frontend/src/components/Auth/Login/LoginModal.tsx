@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { X, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import "./LoginModal.css";
+import styles from "./LoginModal.module.css";
 
 interface LoginFormData {
   email: string;
@@ -125,75 +125,72 @@ const LoginModal: React.FC<LoginModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2 className="modal-title">Welcome Back</h2>
-          <button className="modal-close" onClick={onClose}>
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>Welcome Back</h2>
+          <button className={styles.modalClose} onClick={onClose}>
             <X size={24} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          {/* Email Field */}
-          <div className="form-group">
-            <label className="form-label">Email Address</label>
-            <div className="input-wrapper">
-              <Mail className="input-icon" size={20} />
+        <form onSubmit={handleSubmit} className={styles.loginForm}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Email Address</label>
+            <div className={styles.inputWrapper}>
+              <Mail className={styles.inputIcon} size={20} />
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 placeholder="Enter your email"
-                className={`form-input ${errors.email ? "error" : ""}`}
+                className={`${styles.formInput} ${errors.email ? styles.error : ""}`}
                 disabled={isLoading}
               />
             </div>
             {errors.email && (
-              <span className="error-message">{errors.email}</span>
+              <span className={styles.errorMessage}>{errors.email}</span>
             )}
           </div>
 
-          {/* Password Field */}
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <div className="input-wrapper">
-              <Lock className="input-icon" size={20} />
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Password</label>
+            <div className={styles.inputWrapper}>
+              <Lock className={styles.inputIcon} size={20} />
               <input
                 type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={(e) => handleInputChange("password", e.target.value)}
                 placeholder="Enter your password"
-                className={`form-input ${errors.password ? "error" : ""}`}
+                className={`${styles.formInput} ${errors.password ? styles.error : ""}`}
                 disabled={isLoading}
               />
               <button
                 type="button"
-                className="password-toggle"
+                className={styles.passwordToggle}
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
             {errors.password && (
-              <span className="error-message">{errors.password}</span>
+              <span className={styles.errorMessage}>{errors.password}</span>
             )}
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
-            className={`submit-button ${isLoading ? "loading" : ""}`}
+            className={`${styles.submitButton} ${isLoading ? styles.loading : ""}`}
             disabled={isLoading}
           >
             {isLoading ? "Signing In..." : "Sign In"}
           </button>
         </form>
 
-        <div className="modal-footer">
+        <div className={styles.modalFooter}>
           <p>
             Don't have an account?{" "}
-            <button className="link-button" onClick={onSwitchToSignUp}>
+            <button className={styles.linkButton} onClick={onSwitchToSignUp}>
               Sign up here
             </button>
           </p>
