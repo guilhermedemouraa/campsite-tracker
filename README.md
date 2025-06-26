@@ -278,7 +278,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **National Park Service** for maintaining campground data
 - **Rust Community** for excellent web development tools
 - **React Community** for the frontend ecosystem
-
-```
-
-```
