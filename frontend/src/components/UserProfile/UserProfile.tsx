@@ -18,6 +18,7 @@ import {
   sendSmsVerification,
   verifySms,
 } from "./UserProfileUtils";
+import UserScans from "../UserScans/UserScans";
 import "./UserProfile.css";
 
 interface UserProfileProps {
@@ -408,6 +409,9 @@ const UserProfile: React.FC<UserProfileProps> = ({
             </button>
           </div>
         )}
+
+        {/* User Scans Section */}
+        <UserScans />
       </div>
     </div>
   );

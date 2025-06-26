@@ -8,10 +8,14 @@ actix-web = { workspace = true }
 auth_services = { workspace = true }
 bcrypt = { workspace = true }
 chrono = { workspace = true }
+lazy_static = "1.4"
 log = { workspace = true }
 notification_services = { workspace = true }
+regex = "1.10"
+serde = { workspace = true }
 serde_json = { workspace = true }
 sqlx = { workspace = true }
+thiserror = "1.0"
 uuid = { workspace = true }
 validator = { workspace = true }
 

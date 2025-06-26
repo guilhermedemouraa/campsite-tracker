@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Plus } from "lucide-react";
 import FacilitySearch, { Facility } from "../FacilitySearch/FacilitySearch";
 import DatePicker from "../DatePicker/DatePicker";
+import { createScan, formatDateForApi } from "./ScanUtils";
 import "./CreateScan.css";
 
 const CreateScan: React.FC = () => {
@@ -11,6 +12,7 @@ const CreateScan: React.FC = () => {
   );
   const [checkIn, setCheckIn] = useState<string>("");
   const [checkOut, setCheckOut] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleFacilityChange = (value: string) => {
     setFacilitySearch(value);
@@ -25,7 +27,7 @@ const CreateScan: React.FC = () => {
     console.log("Selected facility:", facility);
   };
 
-  const handleCreateScan = () => {
+  const handleCreateScan = async () => {
     if (!facilitySearch || !checkIn || !checkOut) {
       alert("Please fill in all fields");
       return;
@@ -36,41 +38,76 @@ const CreateScan: React.FC = () => {
       return;
     }
 
-    console.log("Creating scan:", {
-      facility: selectedFacility || { name: facilitySearch },
-      checkIn,
-      checkOut,
-    });
+    if (!selectedFacility) {
+      alert("Please select a facility from the search results");
+      return;
+    }
 
-    // TODO: Implement actual scan creation logic
-    alert(
-      `Scan would be created for ${facilitySearch} from ${checkIn} to ${checkOut}`,
-    );
+    setIsLoading(true);
+
+    try {
+      const scanData = {
+        campground_id: selectedFacility.id.toString(),
+        campground_name: selectedFacility.name,
+        check_in_date: formatDateForApi(checkIn),
+        check_out_date: formatDateForApi(checkOut),
+      };
+
+      console.log("Creating scan:", scanData);
+
+      const result = await createScan(scanData);
+
+      console.log("Scan created successfully:", result);
+
+      // Reset form
+      setFacilitySearch("");
+      setSelectedFacility(null);
+      setCheckIn("");
+      setCheckOut("");
+
+      alert(
+        `Scan created successfully! Monitoring ${result.campground_name} for ${result.nights} nights.`,
+      );
+    } catch (error) {
+      console.error("Error creating scan:", error);
+      alert(
+        error instanceof Error
+          ? `Failed to create scan: ${error.message}`
+          : "Failed to create scan. Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const isFormValid =
     facilitySearch &&
+    selectedFacility &&
     checkIn &&
     checkOut &&
-    new Date(checkOut) > new Date(checkIn);
+    new Date(checkOut) > new Date(checkIn) &&
+    !isLoading;
 
   return (
     <div className="create-scan">
-      <div className="scan-card">
-        <div className="scan-header">
-          <Plus className="scan-icon" />
-          <h2 className="scan-title">Create a New Scan</h2>
-          <p className="scan-subtitle">
+      <div className="create-scan-card">
+        <div className="create-scan-header">
+          <Plus className="create-scan-icon" />
+          <h2 className="create-scan-title">Create a New Scan</h2>
+          <p className="create-scan-subtitle">
             Monitor campsite availability for your trip
           </p>
         </div>
 
-        <div className="scan-form">
-          <div className="form-group">
-            <label className="form-label">
+        <div className="create-scan-form">
+          <div className="create-scan-form-group">
+            <label className="create-scan-form-label">
               Facility
               {selectedFacility && (
-                <span className="selected-indicator"> ✓ Selected</span>
+                <span className="create-scan-selected-indicator">
+                  {" "}
+                  ✓ Selected
+                </span>
               )}
             </label>
             <FacilitySearch
@@ -80,8 +117,8 @@ const CreateScan: React.FC = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Dates</label>
+          <div className="create-scan-form-group">
+            <label className="create-scan-form-label">Dates</label>
             <DatePicker
               checkIn={checkIn}
               checkOut={checkOut}
@@ -91,12 +128,12 @@ const CreateScan: React.FC = () => {
           </div>
 
           <button
-            className={`create-button ${!isFormValid ? "disabled" : ""}`}
+            className={`create-scan-button ${!isFormValid ? "disabled" : ""}`}
             onClick={handleCreateScan}
             disabled={!isFormValid}
           >
             <Plus size={20} />
-            Create Scan
+            {isLoading ? "Creating..." : "Create Scan"}
           </button>
         </div>
       </div>

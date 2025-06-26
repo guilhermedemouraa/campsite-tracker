@@ -112,6 +112,17 @@ async fn main() -> std::io::Result<()> {
                             )
                             .route("/verify/sms/send", web::post().to(send_sms_verification))
                             .route("/verify/sms", web::post().to(verify_phone)),
+                    )
+                    // Scan routes (require authentication)
+                    .service(
+                        web::scope("/scans")
+                            .wrap(AuthMiddleware)
+                            .route("", web::post().to(create_scan))
+                            .route("", web::get().to(get_user_scans))
+                            .route("/active", web::get().to(get_active_scans))
+                            .route("/{scan_id}", web::get().to(get_scan))
+                            .route("/{scan_id}", web::put().to(update_scan))
+                            .route("/{scan_id}", web::delete().to(delete_scan)),
                     ),
             )
             .route(
