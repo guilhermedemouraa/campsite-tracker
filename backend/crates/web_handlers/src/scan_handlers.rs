@@ -1,9 +1,11 @@
 use actix_web::{HttpResponse, Result, web};
 use validator::Validate;
 
-use crate::scan_service::ScanService;
-use crate::scan_types::*;
 use auth_services::middleware::AuthenticatedUser;
+use campground_scan::{
+    CreateScanRequest, CreateScanResponse, ListScansResponse, ScanError, ScanService,
+    UpdateScanRequest, UserScanWithCampground,
+};
 
 /// Creates a new campground scan for the authenticated user
 pub async fn create_scan(

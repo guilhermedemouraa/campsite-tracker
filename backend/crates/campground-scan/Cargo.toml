@@ -1,19 +1,15 @@
 [package]
-name = "web_handlers"
+name = "campground-scan"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 actix-web = { workspace = true }
-auth_services = { workspace = true }
-bcrypt = { workspace = true }
-campground-scan = { workspace = true }
 chrono = { workspace = true }
-log = { workspace = true }
-notification_services = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 sqlx = { workspace = true }
+thiserror = "1.0"
 uuid = { workspace = true }
 validator = { workspace = true }
 

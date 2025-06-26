@@ -45,6 +45,7 @@ dotenvy = "0.15"
 
 # Internal dependencies
 auth_services = { path = "crates/auth_services" }
+campground-scan = { path = "crates/campground-scan" }
 notification_services = { path = "crates/notification_services" }
 rec_gov = { path = "crates/rec_gov" }
 postgres = { path = "crates/postgres" }
