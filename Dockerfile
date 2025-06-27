@@ -1,5 +1,5 @@
 # Build frontend
-FROM node:18-alpine AS frontend-builder
+FROM --platform=linux/amd64 node:18-alpine AS frontend-builder
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm install
@@ -7,7 +7,7 @@ COPY frontend/ .
 RUN npm run build
 
 # Build backend with regular glibc (not musl)
-FROM rustlang/rust:nightly AS backend-builder
+FROM --platform=linux/amd64 rustlang/rust:nightly AS backend-builder
 WORKDIR /app
 
 # Install OpenSSL development libraries
@@ -24,7 +24,7 @@ COPY backend/crates ./crates
 RUN cargo build --release
 
 # Final runtime image - use debian (not alpine) to match glibc
-FROM debian:bookworm-slim
+FROM --platform=linux/amd64 debian:bookworm-slim
 RUN apt-get update && \
     apt-get install -y ca-certificates libssl3 && \
     rm -rf /var/lib/apt/lists/*
