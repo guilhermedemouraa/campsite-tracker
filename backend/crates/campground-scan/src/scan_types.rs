@@ -141,6 +141,30 @@ pub enum ScanError {
     /// Campground not found
     #[error("Campground not found")]
     CampgroundNotFound,
+
+    /// API error
+    #[error("API error: {0}")]
+    ApiError(String),
+
+    /// Rate limited by external API
+    #[error("Rate limited by external API")]
+    RateLimited,
+
+    /// Authentication failed with external service
+    #[error("Authentication failed with external service")]
+    AuthenticationFailed,
+
+    /// Data format error
+    #[error("Data format error: {0}")]
+    DataFormat(String),
+
+    /// Configuration error
+    #[error("Configuration error: {0}")]
+    ConfigError(String),
+
+    /// Network error
+    #[error("Network error: {0}")]
+    Network(String),
 }
 
 impl actix_web::ResponseError for ScanError {
@@ -167,6 +191,34 @@ impl actix_web::ResponseError for ScanError {
             ScanError::CampgroundNotFound => HttpResponse::NotFound().json(serde_json::json!({
                 "error": "campground_not_found",
                 "message": "Campground not found"
+            })),
+            ScanError::ApiError(msg) => HttpResponse::BadGateway().json(serde_json::json!({
+                "error": "api_error",
+                "message": format!("External API error: {}", msg)
+            })),
+            ScanError::RateLimited => HttpResponse::TooManyRequests().json(serde_json::json!({
+                "error": "rate_limited",
+                "message": "Rate limited by external service. Please try again later."
+            })),
+            ScanError::AuthenticationFailed => HttpResponse::BadGateway().json(serde_json::json!({
+                "error": "authentication_failed",
+                "message": "Failed to authenticate with external service"
+            })),
+            ScanError::DataFormat(msg) => {
+                HttpResponse::InternalServerError().json(serde_json::json!({
+                    "error": "data_format_error",
+                    "message": format!("Data format error: {}", msg)
+                }))
+            }
+            ScanError::ConfigError(msg) => {
+                HttpResponse::InternalServerError().json(serde_json::json!({
+                    "error": "configuration_error",
+                    "message": format!("Configuration error: {}", msg)
+                }))
+            }
+            ScanError::Network(msg) => HttpResponse::BadGateway().json(serde_json::json!({
+                "error": "network_error",
+                "message": format!("Network error: {}", msg)
             })),
             _ => HttpResponse::InternalServerError().json(serde_json::json!({
                 "error": "internal_error",

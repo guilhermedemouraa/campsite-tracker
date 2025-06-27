@@ -7,13 +7,19 @@ edition = "2024"
 actix-web = { workspace = true }
 actix-files = { workspace = true }
 auth_services = { workspace = true }
+campground-scan = { workspace = true }
+chrono = { workspace = true }
 dotenvy = { workspace = true }
 env_logger = { workspace = true }
 log = { workspace = true }
 notification_services = { workspace = true }
 postgres = { workspace = true }
 rec_gov = { workspace = true }
+serde = { workspace = true }
 serde_json = { workspace = true }
+sqlx = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
 web_handlers = { workspace = true }
 
 [lints]

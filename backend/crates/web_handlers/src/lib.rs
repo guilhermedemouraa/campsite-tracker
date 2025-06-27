@@ -18,6 +18,10 @@ pub use verification_handlers::*;
 mod admin_handlers;
 pub use admin_handlers::*;
 
+/// Admin handlers for scan system monitoring
+mod admin_scan_handlers;
+pub use admin_scan_handlers::*;
+
 /// Handlers for campground scan API endpoints
 mod scan_handlers;
 pub use scan_handlers::*;
