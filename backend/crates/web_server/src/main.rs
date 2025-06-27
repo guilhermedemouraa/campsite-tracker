@@ -10,6 +10,9 @@ use rec_gov::*;
 use std::path::Path;
 use web_handlers::*;
 
+mod scan_manager;
+use scan_manager::ScanManager;
+
 async fn api_hello() -> Result<HttpResponse> {
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Hello from Rust backend on AWS!",
@@ -76,6 +79,15 @@ async fn main() -> std::io::Result<()> {
     // Create verification store
     let verification_store = create_verification_store();
 
+    // Create and start scan manager
+    let mut scan_manager = ScanManager::new(pool.clone());
+    if let Err(e) = scan_manager.start().await {
+        log::error!("❌ Failed to start scan execution system: {}", e);
+        log::warn!("🔧 Continuing without background scanning");
+    } else {
+        log::info!("🔍 Scan execution system started successfully");
+    }
+
     let frontend_path = get_frontend_path();
     log::info!("📁 Frontend files location: {}", frontend_path);
     log::info!("🌐 Server will be available at: http://0.0.0.0:8080");
@@ -122,7 +134,18 @@ async fn main() -> std::io::Result<()> {
                             .route("/active", web::get().to(get_active_scans))
                             .route("/{scan_id}", web::get().to(get_scan))
                             .route("/{scan_id}", web::put().to(update_scan))
-                            .route("/{scan_id}", web::delete().to(delete_scan)),
+                            .route("/{scan_id}", web::delete().to(delete_scan))
+                            // Admin/monitoring routes (moved from /admin scope)
+                            .route("/system/status", web::get().to(get_scan_system_status))
+                            .route("/system/jobs", web::get().to(get_polling_jobs))
+                            .route(
+                                "/system/notifications",
+                                web::get().to(get_recent_notifications),
+                            )
+                            .route(
+                                "/system/force/{campground_id}",
+                                web::post().to(force_scan_campground),
+                            ),
                     ),
             )
             .route(

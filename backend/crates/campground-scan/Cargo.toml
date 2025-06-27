@@ -12,6 +12,10 @@ sqlx = { workspace = true }
 thiserror = { workspace = true }
 uuid = { workspace = true }
 validator = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+reqwest = { workspace = true }
+async-trait = { workspace = true }
 
 [lints]
 workspace = true

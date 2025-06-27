@@ -287,6 +287,43 @@ stop_instance:
   aws ec2 stop-instances --instance-ids $INSTANCE_ID
   echo "Instance stopping..."
 
+# === Admin Testing Commands ===
+
+# Combined admin workflow: login and get status
+admin-check:
+  #!/usr/bin/env bash
+  echo "🔐 Admin login and status check..."
+  
+  # Get JWT token
+  TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{
+      "email": "guilhermedemouraa@gmail.com",
+      "password": "CampsiteTracker@2507"
+    }' | jq -r '.access_token')
+  
+  if [ "$TOKEN" = "null" ] || [ -z "$TOKEN" ]; then
+    echo "❌ Failed to get JWT token"
+    exit 1
+  fi
+  
+  echo "✅ Got JWT token"
+  echo ""
+  
+  echo "📊 System Status:"
+  curl -s -X GET http://localhost:8080/api/scans/system/status \
+    -H "Authorization: Bearer $TOKEN" | jq '.'
+  echo ""
+  
+  echo "🔍 Active Jobs:"
+  curl -s -X GET http://localhost:8080/api/scans/system/jobs \
+    -H "Authorization: Bearer $TOKEN" | jq '.'
+  echo ""
+  
+  echo "📬 Recent Notifications:"
+  curl -s -X GET http://localhost:8080/api/scans/system/notifications \
+    -H "Authorization: Bearer $TOKEN" | jq '.'
+
 # === Cleanup ===
 
 # Clean build artifacts
